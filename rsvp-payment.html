@@ -1,0 +1,74 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RSVP & Payment | Nelsoncon</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="./index.html">Nelsoncon</a>
+        <nav class="main-nav" aria-label="Main navigation">
+          <a href="./venue-directions.html">Venue & Directions</a>
+          <a href="./information-rules.html">Information & Rules</a>
+          <a class="active" href="./rsvp-payment.html">RSVP & Payment</a>
+          <a href="./memories.html">Memories</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="wrap page">
+      <h1>RSVP & Payment</h1>
+
+      <section class="card stack">
+        <h2>Ticket Pricing</h2>
+        <ul>
+          <li>Single Day Pass: $35</li>
+          <li>Weekend Pass: $80</li>
+          <li>VIP Pass: $140</li>
+        </ul>
+      </section>
+
+      <section class="card stack">
+        <h2>RSVP Form</h2>
+        <form id="rsvpForm" class="stack" novalidate>
+          <label for="fullName">Full Name</label>
+          <input id="fullName" name="fullName" required />
+
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" required />
+
+          <label for="ticketType">Ticket Type</label>
+          <select id="ticketType" name="ticketType" required>
+            <option value="">Choose an option</option>
+            <option>Single Day Pass</option>
+            <option>Weekend Pass</option>
+            <option>VIP Pass</option>
+          </select>
+
+          <label for="paymentMethod">Payment Method</label>
+          <select id="paymentMethod" name="paymentMethod" required>
+            <option value="">Choose an option</option>
+            <option>Card</option>
+            <option>PayPal</option>
+            <option>Bank Transfer</option>
+          </select>
+
+          <button type="submit" class="button">Submit RSVP</button>
+          <p class="form-note">This form records intent. Payment processing can be integrated later.</p>
+          <p id="rsvpMessage" class="form-message" aria-live="polite"></p>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">Nelsoncon <span data-year></span></div>
+    </footer>
+    <script src="./assets/main.js"></script>
+  </body>
+</html>
