@@ -283,3 +283,23 @@ select {
 .year-label {
   display: block;
 }
+
+.page-title-row {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.secret-snowflake {
+  font-size: 1.1rem;
+  line-height: 1;
+  text-decoration: none;
+  color: var(--ink);
+  opacity: 0.1;
+  transition: opacity 0.2s ease;
+}
+
+.secret-snowflake:hover,
+.secret-snowflake:focus-visible {
+  opacity: 0.85;
+}

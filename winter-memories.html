@@ -1,0 +1,88 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Winter Memories | Nelsoncon</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="./index.html">Nelsoncon</a>
+        <nav class="main-nav" aria-label="Main navigation">
+          <a href="./venue-directions.html">Venue & Directions</a>
+          <a href="./information-rules.html">Information & Rules</a>
+          <a href="./rsvp-payment.html">RSVP & Payment</a>
+          <a href="./memories.html">Memories</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="wrap page">
+      <h1>Memories</h1>
+
+      <section class="card stack" data-memories-tabs>
+        <h2>Nelsoncon Winter Memories</h2>
+
+        <div class="year-tabs" role="tablist" aria-label="Nelsoncon winter years">
+          <button class="year-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="wmem-2023" data-tab-year="2023"><span class="year-roman">I</span><span class="year-label">2023</span></button>
+          <button class="year-tab" type="button" role="tab" aria-selected="false" aria-controls="wmem-2024" data-tab-year="2024"><span class="year-roman">II</span><span class="year-label">2024</span></button>
+          <button class="year-tab" type="button" role="tab" aria-selected="false" aria-controls="wmem-2025" data-tab-year="2025"><span class="year-roman">III</span><span class="year-label">2025</span></button>
+          <button class="year-tab" type="button" role="tab" aria-selected="false" aria-controls="wmem-2026" data-tab-year="2026"><span class="year-roman">IV</span><span class="year-label">2026</span></button>
+        </div>
+
+        <div class="tab-panels">
+          <article id="wmem-2023" class="memory-panel is-active" role="tabpanel" data-panel-year="2023">
+            <div class="memory-grid">
+              <article class="memory-item">
+                <h3>Winter Launch</h3>
+                <p>The first winter edition introduced cozy late-night panels and holiday-themed fan art.</p>
+              </article>
+            </div>
+          </article>
+
+          <article id="wmem-2024" class="memory-panel" role="tabpanel" hidden data-panel-year="2024">
+            <div class="memory-grid">
+              <article class="memory-item">
+                <h3>Snow Session Stage</h3>
+                <p>Acoustic creator sessions and winter workshops became the most talked-about events.</p>
+              </article>
+            </div>
+          </article>
+
+          <article id="wmem-2025" class="memory-panel" role="tabpanel" hidden data-panel-year="2025">
+            <div class="memory-grid">
+              <article class="memory-item">
+                <h3>Fireside Meetups</h3>
+                <p>Small group meetups created a more personal space for attendees and guests.</p>
+              </article>
+            </div>
+          </article>
+
+          <article id="wmem-2026" class="memory-panel" role="tabpanel" hidden data-panel-year="2026">
+            <div class="memory-grid">
+              <article class="memory-item">
+                <h3>Current Winter Highlights</h3>
+                <p>Use this section for the newest winter photos, stories, and standout moments.</p>
+              </article>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="card stack">
+        <h2>Share a Winter Memory</h2>
+        <p>Email your photos or stories to <a href="mailto:memories@nelsoncon.example">memories@nelsoncon.example</a> and include "Winter" in the subject line.</p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">Nelsoncon <span data-year></span></div>
+    </footer>
+    <script src="./assets/main.js"></script>
+  </body>
+</html>
