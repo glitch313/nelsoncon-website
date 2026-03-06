@@ -268,3 +268,18 @@ select {
 .year-label {
   font-size: 1.03rem;
 }
+
+/* Force stacked tab labels: Roman numeral on top, year below */
+.year-tab {
+  display: grid !important;
+  grid-template-rows: auto auto;
+  place-items: center;
+  row-gap: 0.1rem;
+  white-space: normal;
+  text-align: center;
+}
+
+.year-roman,
+.year-label {
+  display: block;
+}
