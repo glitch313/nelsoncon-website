@@ -293,8 +293,8 @@ select {
 .secret-toggle {
   font-size: 1.15rem;
   line-height: 1;
-  text-decoration: none;
-  color: var(--ink);
+  text-decoration: none !important;
+  border-bottom: none;
   opacity: 0.4;
   transition: opacity 0.2s ease;
 }
@@ -302,4 +302,14 @@ select {
 .secret-toggle:hover,
 .secret-toggle:focus-visible {
   opacity: 0.95;
+}
+
+.secret-toggle.secret-sun,
+.secret-toggle.secret-sun:visited {
+  color: #e0b100;
+}
+
+.secret-toggle.secret-snow,
+.secret-toggle.secret-snow:visited {
+  color: #5ea8ff;
 }
