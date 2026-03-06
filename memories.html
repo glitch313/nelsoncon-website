@@ -25,20 +25,101 @@
     <main class="wrap page">
       <h1>Memories</h1>
 
-      <section class="card stack">
-        <h2>Favorite Moments</h2>
-        <div class="memory-grid">
-          <article class="memory-item">
-            <h3>Year One Kickoff</h3>
-            <p>The opening crowd count exceeded expectations and set the tone for the weekend.</p>
+      <section class="card stack" data-memories-tabs>
+        <h2>Favorite Moments by Year</h2>
+
+        <div class="year-tabs" role="tablist" aria-label="Nelsoncon years">
+          <button class="year-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="mem-2018" data-tab-year="2018">2018</button>
+          <button class="year-tab" type="button" role="tab" aria-selected="false" aria-controls="mem-2019" data-tab-year="2019">2019</button>
+          <button class="year-tab" type="button" role="tab" aria-selected="false" aria-controls="mem-2020" data-tab-year="2020">2020</button>
+          <button class="year-tab" type="button" role="tab" aria-selected="false" aria-controls="mem-2021" data-tab-year="2021">2021</button>
+          <button class="year-tab" type="button" role="tab" aria-selected="false" aria-controls="mem-2022" data-tab-year="2022">2022</button>
+          <button class="year-tab" type="button" role="tab" aria-selected="false" aria-controls="mem-2023" data-tab-year="2023">2023</button>
+          <button class="year-tab" type="button" role="tab" aria-selected="false" aria-controls="mem-2024" data-tab-year="2024">2024</button>
+          <button class="year-tab" type="button" role="tab" aria-selected="false" aria-controls="mem-2025" data-tab-year="2025">2025</button>
+          <button class="year-tab" type="button" role="tab" aria-selected="false" aria-controls="mem-2026" data-tab-year="2026">2026</button>
+        </div>
+
+        <div class="tab-panels">
+          <article id="mem-2018" class="memory-panel is-active" role="tabpanel" data-panel-year="2018">
+            <div class="memory-grid">
+              <article class="memory-item">
+                <h3>Launch Year</h3>
+                <p>The very first Nelsoncon gathering kicked off with packed registration lines and huge excitement.</p>
+              </article>
+            </div>
           </article>
-          <article class="memory-item">
-            <h3>Community Showcase</h3>
-            <p>Attendees presented fan projects, art, and prototypes from around the region.</p>
+
+          <article id="mem-2019" class="memory-panel" role="tabpanel" hidden data-panel-year="2019">
+            <div class="memory-grid">
+              <article class="memory-item">
+                <h3>Creator Growth</h3>
+                <p>More panelists and fan creators joined, expanding showcases and interactive sessions.</p>
+              </article>
+            </div>
           </article>
-          <article class="memory-item">
-            <h3>Final Night Awards</h3>
-            <p>Our annual awards highlighted creators and volunteers who shaped the event.</p>
+
+          <article id="mem-2020" class="memory-panel" role="tabpanel" hidden data-panel-year="2020">
+            <div class="memory-grid">
+              <article class="memory-item">
+                <h3>Community Resilience</h3>
+                <p>Fans kept the spirit alive with virtual highlights and shared memories.</p>
+              </article>
+            </div>
+          </article>
+
+          <article id="mem-2021" class="memory-panel" role="tabpanel" hidden data-panel-year="2021">
+            <div class="memory-grid">
+              <article class="memory-item">
+                <h3>Hybrid Return</h3>
+                <p>Small in-person meetups and online events brought attendees back together.</p>
+              </article>
+            </div>
+          </article>
+
+          <article id="mem-2022" class="memory-panel" role="tabpanel" hidden data-panel-year="2022">
+            <div class="memory-grid">
+              <article class="memory-item">
+                <h3>Full Weekend Comeback</h3>
+                <p>Live panels, cosplay walk-ons, and game rooms made this a standout year.</p>
+              </article>
+            </div>
+          </article>
+
+          <article id="mem-2023" class="memory-panel" role="tabpanel" hidden data-panel-year="2023">
+            <div class="memory-grid">
+              <article class="memory-item">
+                <h3>Biggest Showcase Yet</h3>
+                <p>The fan project hall doubled in size with original art and prototypes.</p>
+              </article>
+            </div>
+          </article>
+
+          <article id="mem-2024" class="memory-panel" role="tabpanel" hidden data-panel-year="2024">
+            <div class="memory-grid">
+              <article class="memory-item">
+                <h3>Awards Night Highlights</h3>
+                <p>Award winners and volunteers were recognized in a packed closing ceremony.</p>
+              </article>
+            </div>
+          </article>
+
+          <article id="mem-2025" class="memory-panel" role="tabpanel" hidden data-panel-year="2025">
+            <div class="memory-grid">
+              <article class="memory-item">
+                <h3>New Venue Energy</h3>
+                <p>The expanded venue gave room for more booths, panels, and meetup spaces.</p>
+              </article>
+            </div>
+          </article>
+
+          <article id="mem-2026" class="memory-panel" role="tabpanel" hidden data-panel-year="2026">
+            <div class="memory-grid">
+              <article class="memory-item">
+                <h3>Current Year Moments</h3>
+                <p>Add your latest photos and stories here to capture this year’s convention experience.</p>
+              </article>
+            </div>
           </article>
         </div>
       </section>

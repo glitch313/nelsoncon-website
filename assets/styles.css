@@ -212,3 +212,38 @@ select {
     padding: 1.4rem;
   }
 }
+
+.year-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+}
+
+.year-tab {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff8ec;
+  color: var(--ink);
+  padding: 0.4rem 0.75rem;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.year-tab:hover {
+  border-color: var(--accent);
+}
+
+.year-tab.is-active {
+  border-color: var(--accent-strong);
+  background: #f8e3b7;
+}
+
+.memory-panel {
+  display: block;
+}
+
+.memory-panel[hidden] {
+  display: none;
+}
