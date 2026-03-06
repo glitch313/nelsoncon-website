@@ -247,3 +247,24 @@ select {
 .memory-panel[hidden] {
   display: none;
 }
+
+.year-tab {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  gap: 0.08rem;
+  line-height: 1;
+}
+
+.year-roman {
+  font-family: "Cinzel", Georgia, serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: var(--accent-strong);
+}
+
+.year-label {
+  font-size: 1.03rem;
+}
