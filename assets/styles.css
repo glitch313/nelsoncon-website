@@ -220,6 +220,50 @@ select {
   margin-bottom: 1rem;
 }
 
+.memories-layout {
+  display: grid;
+  grid-template-columns: minmax(180px, 230px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.attendees-panel {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  margin-top: 5.2rem;
+}
+
+.attendees-panel h3 {
+  margin: 0 0 0.55rem;
+}
+
+.attendees-list {
+  margin: 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.24rem;
+}
+
+.attendees-list li {
+  margin: 0;
+}
+
+.tab-panels {
+  min-width: 0;
+}
+
+@media (max-width: 1200px) {
+  .memories-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .attendees-panel {
+    margin: 0 0 0.8rem;
+  }
+}
+
 .year-tab {
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -229,6 +273,14 @@ select {
   font: inherit;
   font-weight: 700;
   cursor: pointer;
+  display: grid;
+  grid-template-rows: auto auto;
+  place-items: center;
+  min-width: 72px;
+  row-gap: 0.1rem;
+  line-height: 1;
+  white-space: normal;
+  text-align: center;
 }
 
 .year-tab:hover {
@@ -248,17 +300,8 @@ select {
   display: none;
 }
 
-.year-tab {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-width: 72px;
-  gap: 0.08rem;
-  line-height: 1;
-}
-
 .year-roman {
+  display: block;
   font-family: "Cinzel", Georgia, serif;
   font-size: 0.68rem;
   letter-spacing: 0.08em;
@@ -266,22 +309,8 @@ select {
 }
 
 .year-label {
-  font-size: 1.03rem;
-}
-
-/* Force stacked tab labels: Roman numeral on top, year below */
-.year-tab {
-  display: grid !important;
-  grid-template-rows: auto auto;
-  place-items: center;
-  row-gap: 0.1rem;
-  white-space: normal;
-  text-align: center;
-}
-
-.year-roman,
-.year-label {
   display: block;
+  font-size: 1.03rem;
 }
 
 .page-title-row {
@@ -314,95 +343,7 @@ select {
   color: #5ea8ff;
 }
 
-.memory-gallery {
-  margin-top: 0.75rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.55rem;
-}
-
-.memory-photo {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid #c8b389;
-  background: #f7f0df;
-}
-
 /* Memory feed layout: stack images vertically and keep cropped card thumbnails */
-.memory-gallery {
-  margin-top: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-}
-
-.memory-photo-link {
-  display: block;
-  width: 100%;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  text-align: left;
-  cursor: zoom-in;
-}
-
-.memory-photo {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid #c8b389;
-  background: #f7f0df;
-}
-
-body.lightbox-open {
-  overflow: hidden;
-}
-
-.memory-lightbox {
-  position: fixed;
-  inset: 0;
-  z-index: 2000;
-  background: rgba(7, 14, 28, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.memory-lightbox[hidden] {
-  display: none;
-}
-
-.memory-lightbox-image {
-  max-width: 95vw;
-  max-height: 90vh;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  border-radius: 10px;
-  border: 1px solid #d8ccb5;
-  background: #111827;
-}
-
-.memory-lightbox-close {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  width: 2rem;
-  height: 2rem;
-  border: 1px solid #f8e3b7;
-  background: rgba(0, 0, 0, 0.5);
-  color: #fff;
-  border-radius: 999px;
-  cursor: pointer;
-  font: inherit;
-  font-weight: 700;
-}
-
-/* Thumbnail crop without zooming-in: clip overflow, keep image scale natural */
 .memory-gallery {
   margin-top: 0.75rem;
   display: flex;

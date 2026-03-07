@@ -51,6 +51,28 @@
 
     const tabs = Array.from(container.querySelectorAll("[data-tab-year]"));
     const panels = Array.from(container.querySelectorAll("[data-panel-year]"));
+    const layout = container.closest(".memories-layout");
+    const attendeesList =
+      (layout && layout.querySelector("[data-attendees-list]")) ||
+      container.querySelector("[data-attendees-list]");
+
+    function renderAttendees(activeTab, year) {
+      if (!attendeesList) {
+        return;
+      }
+
+      const raw = (activeTab?.dataset.attendees || "").trim();
+      const attendees = raw
+        ? raw.split("|").map((entry) => entry.trim()).filter(Boolean)
+        : [`Add attendee names for ${year}.`];
+
+      attendeesList.innerHTML = "";
+      attendees.forEach((attendee) => {
+        const item = document.createElement("li");
+        item.textContent = attendee;
+        attendeesList.appendChild(item);
+      });
+    }
 
     function setActiveYear(year) {
       tabs.forEach((tab) => {
@@ -64,6 +86,9 @@
         panel.classList.toggle("is-active", active);
         panel.hidden = !active;
       });
+
+      const activeTab = tabs.find((tab) => tab.dataset.tabYear === year);
+      renderAttendees(activeTab, year);
     }
 
     tabs.forEach((tab) => {
@@ -105,13 +130,17 @@
     galleries.forEach((gallery) => {
       const type = gallery.dataset.memoryType;
       const year = gallery.dataset.memoryYear;
-      const entries = normalizeMediaEntries((((manifest || {})[type] || {})[year] || []).filter(Boolean));
+      const entries = normalizeMediaEntries(
+        (((manifest || {})[type] || {})[year] || []).filter(Boolean)
+      );
 
       gallery.innerHTML = "";
 
       if (entries.length === 0) {
         return;
       }
+
+      const fragment = document.createDocumentFragment();
 
       entries.forEach((entry, idx) => {
         const link = document.createElement("button");
@@ -155,8 +184,10 @@
         });
 
         link.appendChild(mediaEl);
-        gallery.appendChild(link);
+        fragment.appendChild(link);
       });
+
+      gallery.appendChild(fragment);
     });
   }
 

@@ -28,16 +28,21 @@
         <a class="secret-toggle secret-snow" href="./memories.html" aria-label="Return to normal memories">❄</a>
       </div>
 
-      <section class="card stack" data-memories-tabs>
+      <div class="memories-layout">
+        <aside class="attendees-panel" aria-live="polite">
+          <h3>Attendees</h3>
+          <ul class="attendees-list" data-attendees-list></ul>
+        </aside>
+
+        <section class="card stack" data-memories-tabs>
         <h2>Nelsoncon Winter Memories</h2>
 
         <div class="year-tabs" role="tablist" aria-label="Nelsoncon winter years">
-          <button class="year-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="wmem-2023" data-tab-year="2023"><span class="year-roman">I</span><span class="year-label">2023</span></button>
-          <button class="year-tab" type="button" role="tab" aria-selected="false" aria-controls="wmem-2024" data-tab-year="2024"><span class="year-roman">II</span><span class="year-label">2024</span></button>
-          <button class="year-tab" type="button" role="tab" aria-selected="false" aria-controls="wmem-2025" data-tab-year="2025"><span class="year-roman">III</span><span class="year-label">2025</span></button>
-          <button class="year-tab" type="button" role="tab" aria-selected="false" aria-controls="wmem-2026" data-tab-year="2026"><span class="year-roman">IV</span><span class="year-label">2026</span></button>
+          <button class="year-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="wmem-2023" data-tab-year="2023" data-attendees="Add attendee names for winter 2023"><span class="year-roman">I</span><span class="year-label">2023</span></button>
+          <button class="year-tab" type="button" role="tab" aria-selected="false" aria-controls="wmem-2024" data-tab-year="2024" data-attendees="Add attendee names for winter 2024"><span class="year-roman">II</span><span class="year-label">2024</span></button>
+          <button class="year-tab" type="button" role="tab" aria-selected="false" aria-controls="wmem-2025" data-tab-year="2025" data-attendees="Add attendee names for winter 2025"><span class="year-roman">III</span><span class="year-label">2025</span></button>
+          <button class="year-tab" type="button" role="tab" aria-selected="false" aria-controls="wmem-2026" data-tab-year="2026" data-attendees="Add attendee names for winter 2026"><span class="year-roman">IV</span><span class="year-label">2026</span></button>
         </div>
-
         <div class="tab-panels">
           <article id="wmem-2023" class="memory-panel is-active" role="tabpanel" data-panel-year="2023">
             <div class="memory-grid">
@@ -96,6 +101,7 @@
           </article>
         </div>
       </section>
+      </div>
 
       <section class="card stack">
         <h2>Share a Winter Memory</h2>
