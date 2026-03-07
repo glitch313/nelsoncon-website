@@ -113,7 +113,7 @@
       files.forEach((src, idx) => {
         const link = document.createElement("button");
         link.type = "button";
-        link.className = "memory-photo-link";
+        link.className = "memory-photo-link is-square";
         link.setAttribute("aria-label", `Open ${type} ${year} photo ${idx + 1}`);
 
         const img = document.createElement("img");
@@ -121,6 +121,18 @@
         img.src = src;
         img.alt = `Nelsoncon ${type === "winter" ? "Winter " : ""}${year} photo ${idx + 1}`;
         img.loading = "lazy";
+
+        img.addEventListener("load", () => {
+          const ratio = img.naturalWidth / Math.max(1, img.naturalHeight);
+          link.classList.remove("is-portrait", "is-landscape", "is-square");
+          if (ratio <= 0.82) {
+            link.classList.add("is-portrait");
+          } else if (ratio >= 1.35) {
+            link.classList.add("is-landscape");
+          } else {
+            link.classList.add("is-square");
+          }
+        });
 
         link.addEventListener("click", () => {
           openLightbox(lightbox, files, idx, type, year);
