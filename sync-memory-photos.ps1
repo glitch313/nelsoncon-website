@@ -1,64 +1,53 @@
 ﻿param(
-  [string]$MemoriesRoot = (Join-Path $PSScriptRoot "assets/memories")
+  [string]$MemoriesRoot = (Join-Path $PSScriptRoot "assets/memories"),
+  [string]$OutputFile = (Join-Path $PSScriptRoot "assets/memories/photo-manifest.json")
 )
 
 $regularYears = 2018..2026
 $winterYears = 2023..2026
 $supportedExts = @(".jpg", ".jpeg", ".png", ".webp")
+$slotPattern = '^photo[1-3]\.(jpg|jpeg|png|webp)$'
 
-function Get-SlotNames {
-  $names = @()
-  foreach ($slot in 1..3) {
-    foreach ($ext in $supportedExts) {
-      $names += "photo$slot$ext"
-    }
-  }
-  return $names
-}
-
-function Sync-Folder {
+function Get-YearPhotoPaths {
   param([string]$FolderPath)
 
   if (-not (Test-Path $FolderPath -PathType Container)) {
-    return
+    return @()
   }
 
-  $slotNames = Get-SlotNames
-
-  # Collect uploaded files (exclude current slot files) and sort newest first.
-  $candidates = Get-ChildItem -Path $FolderPath -File | Where-Object {
-    ($_.Extension.ToLowerInvariant() -in $supportedExts) -and ($_.Name -notin $slotNames)
-  } | Sort-Object LastWriteTime -Descending
-
-  if ($candidates.Count -eq 0) {
-    return
+  $allSupported = Get-ChildItem -Path $FolderPath -File | Where-Object {
+    $_.Extension.ToLowerInvariant() -in $supportedExts
   }
 
-  # Clear any existing slot files so the newest uploads become the active slot files.
-  foreach ($name in $slotNames) {
-    $path = Join-Path $FolderPath $name
-    if (Test-Path $path -PathType Leaf) {
-      Remove-Item -Path $path -Force
+  if ($allSupported.Count -eq 0) {
+    return @()
+  }
+
+  $nonSlot = $allSupported | Where-Object { $_.Name -notmatch $slotPattern }
+  $chosen = if ($nonSlot.Count -gt 0) { $nonSlot } else { $allSupported }
+
+  return $chosen |
+    Sort-Object LastWriteTime -Descending |
+    ForEach-Object {
+      "./" + ($_.FullName.Substring($PSScriptRoot.Length + 1) -replace '\\', '/')
     }
-  }
+}
 
-  $slot = 1
-  foreach ($file in $candidates) {
-    if ($slot -gt 3) {
-      break
-    }
-
-    $ext = $file.Extension.ToLowerInvariant()
-    $destination = Join-Path $FolderPath ("photo{0}{1}" -f $slot, $ext)
-    Copy-Item -Path $file.FullName -Destination $destination -Force
-    $slot += 1
-  }
+$manifest = [ordered]@{
+  generatedAt = (Get-Date).ToString("o")
+  regular = [ordered]@{}
+  winter = [ordered]@{}
 }
 
 foreach ($year in $regularYears) {
-  Sync-Folder -FolderPath (Join-Path $MemoriesRoot "$year")
+  $folder = Join-Path $MemoriesRoot "$year"
+  $manifest.regular["$year"] = @(Get-YearPhotoPaths -FolderPath $folder)
 }
 
 foreach ($year in $winterYears) {
-  Sync-Folder -FolderPath (Join-Path $MemoriesRoot "winter/$year")
+  $folder = Join-Path $MemoriesRoot "winter/$year"
+  $manifest.winter["$year"] = @(Get-YearPhotoPaths -FolderPath $folder)
 }
+
+$manifestJson = $manifest | ConvertTo-Json -Depth 8
+Set-Content -Path $OutputFile -Value $manifestJson -Encoding utf8

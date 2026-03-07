@@ -329,3 +329,76 @@ select {
   border: 1px solid #c8b389;
   background: #f7f0df;
 }
+
+/* Memory feed layout: stack images vertically and allow long-page scroll */
+.memory-gallery {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.memory-photo-link {
+  display: block;
+  width: 100%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  text-align: left;
+  cursor: zoom-in;
+}
+
+.memory-photo {
+  width: 100%;
+  height: auto;
+  aspect-ratio: auto;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid #c8b389;
+  background: #f7f0df;
+}
+
+body.lightbox-open {
+  overflow: hidden;
+}
+
+.memory-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(7, 14, 28, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.memory-lightbox[hidden] {
+  display: none;
+}
+
+.memory-lightbox-image {
+  max-width: 95vw;
+  max-height: 90vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 10px;
+  border: 1px solid #d8ccb5;
+  background: #111827;
+}
+
+.memory-lightbox-close {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid #f8e3b7;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
