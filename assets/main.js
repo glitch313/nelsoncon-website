@@ -123,7 +123,7 @@
         img.loading = "lazy";
 
         link.addEventListener("click", () => {
-          openLightbox(lightbox, src, img.alt);
+          openLightbox(lightbox, files, idx, type, year);
         });
 
         link.appendChild(img);
@@ -133,15 +133,27 @@
   }
 
   function buildLightbox() {
-    let overlay = document.getElementById("memoryLightbox");
-    if (overlay) {
-      return overlay;
+    const existing = document.getElementById("memoryLightbox");
+    if (existing && existing._lightboxApi) {
+      return existing._lightboxApi;
     }
 
-    overlay = document.createElement("div");
+    const overlay = document.createElement("div");
     overlay.id = "memoryLightbox";
     overlay.className = "memory-lightbox";
     overlay.hidden = true;
+
+    const prevBtn = document.createElement("button");
+    prevBtn.type = "button";
+    prevBtn.className = "memory-lightbox-nav prev";
+    prevBtn.setAttribute("aria-label", "Previous image");
+    prevBtn.textContent = "<";
+
+    const nextBtn = document.createElement("button");
+    nextBtn.type = "button";
+    nextBtn.className = "memory-lightbox-nav next";
+    nextBtn.setAttribute("aria-label", "Next image");
+    nextBtn.textContent = ">";
 
     const closeBtn = document.createElement("button");
     closeBtn.type = "button";
@@ -153,17 +165,73 @@
     image.className = "memory-lightbox-image";
     image.alt = "";
 
+    overlay.appendChild(prevBtn);
+    overlay.appendChild(nextBtn);
     overlay.appendChild(closeBtn);
     overlay.appendChild(image);
     document.body.appendChild(overlay);
 
+    const state = {
+      overlay,
+      image,
+      prevBtn,
+      nextBtn,
+      files: [],
+      index: 0,
+      labelPrefix: "",
+    };
+
+    function renderCurrent() {
+      if (!state.files.length) {
+        return;
+      }
+
+      state.image.src = state.files[state.index];
+      state.image.alt = `${state.labelPrefix} photo ${state.index + 1} of ${state.files.length}`;
+      state.prevBtn.disabled = state.index === 0;
+      state.nextBtn.disabled = state.index === state.files.length - 1;
+    }
+
     function closeLightbox() {
-      overlay.hidden = true;
-      image.removeAttribute("src");
+      state.overlay.hidden = true;
+      state.image.removeAttribute("src");
       document.body.classList.remove("lightbox-open");
     }
 
+    function step(delta) {
+      const nextIndex = state.index + delta;
+      if (nextIndex < 0 || nextIndex >= state.files.length) {
+        return;
+      }
+
+      state.index = nextIndex;
+      renderCurrent();
+    }
+
+    const api = {
+      open(files, startIndex, labelPrefix) {
+        state.files = files.slice();
+        state.index = startIndex;
+        state.labelPrefix = labelPrefix;
+        renderCurrent();
+        state.overlay.hidden = false;
+        document.body.classList.add("lightbox-open");
+      },
+      close: closeLightbox,
+      prev() {
+        step(-1);
+      },
+      next() {
+        step(1);
+      },
+      isOpen() {
+        return !state.overlay.hidden;
+      },
+    };
+
     closeBtn.addEventListener("click", closeLightbox);
+    prevBtn.addEventListener("click", () => api.prev());
+    nextBtn.addEventListener("click", () => api.next());
 
     overlay.addEventListener("click", (event) => {
       if (event.target === overlay) {
@@ -172,20 +240,25 @@
     });
 
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && !overlay.hidden) {
+      if (!api.isOpen()) {
+        return;
+      }
+
+      if (event.key === "Escape") {
         closeLightbox();
+      } else if (event.key === "ArrowLeft") {
+        api.prev();
+      } else if (event.key === "ArrowRight") {
+        api.next();
       }
     });
 
-    overlay.closeLightbox = closeLightbox;
-    return overlay;
+    overlay._lightboxApi = api;
+    return api;
   }
 
-  function openLightbox(overlay, src, alt) {
-    const image = overlay.querySelector(".memory-lightbox-image");
-    image.src = src;
-    image.alt = alt;
-    overlay.hidden = false;
-    document.body.classList.add("lightbox-open");
+  function openLightbox(lightbox, files, index, type, year) {
+    const labelPrefix = `Nelsoncon ${type === "winter" ? "Winter " : ""}${year}`;
+    lightbox.open(files, index, labelPrefix);
   }
 })();
