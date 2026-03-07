@@ -51,25 +51,6 @@
 
     const tabs = Array.from(container.querySelectorAll("[data-tab-year]"));
     const panels = Array.from(container.querySelectorAll("[data-panel-year]"));
-    const attendeesList = document.querySelector("[data-attendees-list]");
-
-    function renderAttendees(activeTab, year) {
-      if (!attendeesList) {
-        return;
-      }
-
-      const raw = (activeTab?.dataset.attendees || "").trim();
-      const attendees = raw
-        ? raw.split("|").map((entry) => entry.trim()).filter(Boolean)
-        : [`Add attendee names for ${year}.`];
-
-      attendeesList.innerHTML = "";
-      attendees.forEach((attendee) => {
-        const item = document.createElement("li");
-        item.textContent = attendee;
-        attendeesList.appendChild(item);
-      });
-    }
 
     function setActiveYear(year) {
       tabs.forEach((tab) => {
@@ -83,9 +64,6 @@
         panel.classList.toggle("is-active", active);
         panel.hidden = !active;
       });
-
-      const activeTab = tabs.find((tab) => tab.dataset.tabYear === year);
-      renderAttendees(activeTab, year);
     }
 
     tabs.forEach((tab) => {
