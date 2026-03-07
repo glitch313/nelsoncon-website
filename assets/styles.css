@@ -232,7 +232,12 @@ select {
   border: 0;
   border-radius: 0;
   padding: 0;
-  margin-top: 5.2rem;
+  margin-top: 0;
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.35;
+  position: sticky;
+  top: 5.2rem;
 }
 
 .attendees-panel h3 {
@@ -260,6 +265,8 @@ select {
   }
 
   .attendees-panel {
+    position: static;
+    top: auto;
     margin: 0 0 0.8rem;
   }
 }

@@ -51,10 +51,7 @@
 
     const tabs = Array.from(container.querySelectorAll("[data-tab-year]"));
     const panels = Array.from(container.querySelectorAll("[data-panel-year]"));
-    const layout = container.closest(".memories-layout");
-    const attendeesList =
-      (layout && layout.querySelector("[data-attendees-list]")) ||
-      container.querySelector("[data-attendees-list]");
+    const attendeesList = document.querySelector("[data-attendees-list]");
 
     function renderAttendees(activeTab, year) {
       if (!attendeesList) {
