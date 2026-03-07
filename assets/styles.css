@@ -29,9 +29,7 @@ body {
 .site-header {
   border-bottom: 1px solid var(--line);
   background: #fff8ec;
-  position: sticky;
-  top: 0;
-  backdrop-filter: blur(5px);
+  position: static;
 }
 
 .site-header .wrap {
@@ -218,6 +216,49 @@ select {
   flex-wrap: wrap;
   gap: 0.45rem;
   margin-bottom: 1rem;
+}
+
+.memories-layout {
+  position: relative;
+}
+
+.attendees-panel {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.35;
+  position: absolute;
+  right: calc(100% + 1rem);
+  top: 5.2rem;
+  width: min(220px, 24vw);
+}
+
+.attendees-panel h3 {
+  margin: 0 0 0.55rem;
+}
+
+.attendees-list {
+  margin: 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.24rem;
+}
+
+.attendees-list li {
+  margin: 0;
+}
+
+@media (max-width: 1200px) {
+  .attendees-panel {
+    position: static;
+    top: auto;
+    margin: 0 0 0.8rem;
+    width: auto;
+  }
 }
 
 .tab-panels {
