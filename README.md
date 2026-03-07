@@ -14,18 +14,27 @@ Open `http://localhost:8000/index.html`.
 
 ## Memory Photos (Auto Slot Mapping)
 
-Drop JPG/JPEG files into the year folders under `assets/memories/` and `assets/memories/winter/`.
+Drop image files into year folders under `assets/memories/` and `assets/memories/winter/`.
 
-When deployed, the workflow auto-maps newest files to:
+Supported formats:
 
-- `photo1.jpg`
-- `photo2.jpg`
-- `photo3.jpg`
+- `.jpg`
+- `.jpeg`
+- `.png`
+- `.webp`
 
-You can also run this locally:
+When deployed, the workflow auto-maps newest files to slot names used by the tabs:
+
+- `photo1.<ext>`
+- `photo2.<ext>`
+- `photo3.<ext>`
+
+The page image tags automatically fall back across formats (`jpg -> jpeg -> png -> webp`) if needed.
+
+You can also run the slot sync locally:
 
 ```powershell
-./sync-memory-photos.ps1
+powershell -ExecutionPolicy Bypass -File .\sync-memory-photos.ps1
 ```
 
 ## GitHub Pages Publish

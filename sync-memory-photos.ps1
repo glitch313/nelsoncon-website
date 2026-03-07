@@ -4,7 +4,17 @@
 
 $regularYears = 2018..2026
 $winterYears = 2023..2026
-$slotNames = @("photo1.jpg", "photo2.jpg", "photo3.jpg")
+$supportedExts = @(".jpg", ".jpeg", ".png", ".webp")
+
+function Get-SlotNames {
+  $names = @()
+  foreach ($slot in 1..3) {
+    foreach ($ext in $supportedExts) {
+      $names += "photo$slot$ext"
+    }
+  }
+  return $names
+}
 
 function Sync-Folder {
   param([string]$FolderPath)
@@ -13,18 +23,33 @@ function Sync-Folder {
     return
   }
 
-  # Map the newest uploaded JPG/JPEG files into fixed photo slots used by the pages.
+  $slotNames = Get-SlotNames
+
+  # Collect uploaded files (exclude current slot files) and sort newest first.
   $candidates = Get-ChildItem -Path $FolderPath -File | Where-Object {
-    ($_.Extension -match '^\.(jpg|jpeg)$') -and ($_.Name -notin $slotNames)
+    ($_.Extension.ToLowerInvariant() -in $supportedExts) -and ($_.Name -notin $slotNames)
   } | Sort-Object LastWriteTime -Descending
 
-  $slot = 0
+  if ($candidates.Count -eq 0) {
+    return
+  }
+
+  # Clear any existing slot files so the newest uploads become the active slot files.
+  foreach ($name in $slotNames) {
+    $path = Join-Path $FolderPath $name
+    if (Test-Path $path -PathType Leaf) {
+      Remove-Item -Path $path -Force
+    }
+  }
+
+  $slot = 1
   foreach ($file in $candidates) {
-    if ($slot -ge $slotNames.Count) {
+    if ($slot -gt 3) {
       break
     }
 
-    $destination = Join-Path $FolderPath $slotNames[$slot]
+    $ext = $file.Extension.ToLowerInvariant()
+    $destination = Join-Path $FolderPath ("photo{0}{1}" -f $slot, $ext)
     Copy-Item -Path $file.FullName -Destination $destination -Force
     $slot += 1
   }
