@@ -1,4 +1,7 @@
 ﻿(function () {
+  const IMAGE_EXT_RE = /\.(avif|bmp|gif|jpe?g|png|svg|webp)(\?.*)?$/i;
+  const VIDEO_EXT_RE = /\.(mp4|webm)(\?.*)?$/i;
+
   setFooterYear();
   initRsvpForm();
   initMemoriesTabs();
@@ -102,46 +105,105 @@
     galleries.forEach((gallery) => {
       const type = gallery.dataset.memoryType;
       const year = gallery.dataset.memoryYear;
-      const files = (((manifest || {})[type] || {})[year] || []).filter(Boolean);
+      const entries = normalizeMediaEntries((((manifest || {})[type] || {})[year] || []).filter(Boolean));
 
       gallery.innerHTML = "";
 
-      if (files.length === 0) {
+      if (entries.length === 0) {
         return;
       }
 
-      files.forEach((src, idx) => {
+      entries.forEach((entry, idx) => {
         const link = document.createElement("button");
         link.type = "button";
         link.className = "memory-photo-link is-square";
-        link.setAttribute("aria-label", `Open ${type} ${year} photo ${idx + 1}`);
+        link.setAttribute("aria-label", `Open ${type} ${year} media ${idx + 1}`);
 
-        const img = document.createElement("img");
-        img.className = "memory-photo";
-        img.src = src;
-        img.alt = `Nelsoncon ${type === "winter" ? "Winter " : ""}${year} photo ${idx + 1}`;
-        img.loading = "lazy";
+        const mediaType = getMediaType(entry.src, entry.type);
+        const label = `Nelsoncon ${type === "winter" ? "Winter " : ""}${year} ${
+          mediaType === "video" ? "video" : "photo"
+        } ${idx + 1}`;
 
-        img.addEventListener("load", () => {
-          const ratio = img.naturalWidth / Math.max(1, img.naturalHeight);
-          link.classList.remove("is-portrait", "is-landscape", "is-square");
-          if (ratio <= 0.82) {
-            link.classList.add("is-portrait");
-          } else if (ratio >= 1.35) {
-            link.classList.add("is-landscape");
-          } else {
-            link.classList.add("is-square");
-          }
-        });
+        let mediaEl;
+        if (mediaType === "video") {
+          const video = document.createElement("video");
+          video.className = "memory-photo memory-video";
+          video.src = entry.src;
+          video.muted = true;
+          video.loop = true;
+          video.playsInline = true;
+          video.preload = "metadata";
+          video.setAttribute("aria-label", label);
+          video.addEventListener("loadedmetadata", () => {
+            applyOrientationClass(link, video.videoWidth / Math.max(1, video.videoHeight));
+          });
+          mediaEl = video;
+        } else {
+          const img = document.createElement("img");
+          img.className = "memory-photo";
+          img.src = entry.src;
+          img.alt = label;
+          img.loading = "lazy";
+          img.addEventListener("load", () => {
+            applyOrientationClass(link, img.naturalWidth / Math.max(1, img.naturalHeight));
+          });
+          mediaEl = img;
+        }
 
         link.addEventListener("click", () => {
-          openLightbox(lightbox, files, idx, type, year);
+          openLightbox(lightbox, entries, idx, type, year);
         });
 
-        link.appendChild(img);
+        link.appendChild(mediaEl);
         gallery.appendChild(link);
       });
     });
+  }
+
+  function applyOrientationClass(link, ratio) {
+    link.classList.remove("is-portrait", "is-landscape", "is-square");
+    if (ratio <= 0.82) {
+      link.classList.add("is-portrait");
+    } else if (ratio >= 1.35) {
+      link.classList.add("is-landscape");
+    } else {
+      link.classList.add("is-square");
+    }
+  }
+
+  function getMediaType(src, explicitType) {
+    if (explicitType === "video" || explicitType === "image") {
+      return explicitType;
+    }
+
+    if (VIDEO_EXT_RE.test(src)) {
+      return "video";
+    }
+
+    if (IMAGE_EXT_RE.test(src)) {
+      return "image";
+    }
+
+    return "image";
+  }
+
+  function normalizeMediaEntries(rawEntries) {
+    return rawEntries
+      .map((entry) => {
+        if (typeof entry === "string") {
+          return { src: entry, type: getMediaType(entry) };
+        }
+
+        if (!entry || typeof entry.src !== "string") {
+          return null;
+        }
+
+        return {
+          src: entry.src,
+          type: getMediaType(entry.src, entry.type),
+        };
+      })
+      .filter(Boolean);
   }
 
   function buildLightbox() {
@@ -177,42 +239,79 @@
     image.className = "memory-lightbox-image";
     image.alt = "";
 
+    const video = document.createElement("video");
+    video.className = "memory-lightbox-video";
+    video.controls = true;
+    video.preload = "metadata";
+    video.playsInline = true;
+    video.hidden = true;
+
     overlay.appendChild(prevBtn);
     overlay.appendChild(nextBtn);
     overlay.appendChild(closeBtn);
     overlay.appendChild(image);
+    overlay.appendChild(video);
     document.body.appendChild(overlay);
 
     const state = {
       overlay,
       image,
+      video,
       prevBtn,
       nextBtn,
-      files: [],
+      entries: [],
       index: 0,
       labelPrefix: "",
     };
 
+    function stopVideoPlayback() {
+      state.video.pause();
+      state.video.removeAttribute("src");
+      state.video.load();
+    }
+
     function renderCurrent() {
-      if (!state.files.length) {
+      if (!state.entries.length) {
         return;
       }
 
-      state.image.src = state.files[state.index];
-      state.image.alt = `${state.labelPrefix} photo ${state.index + 1} of ${state.files.length}`;
+      const current = state.entries[state.index];
+      const mediaType = getMediaType(current.src, current.type);
+      const label = `${state.labelPrefix} ${mediaType === "video" ? "video" : "photo"} ${
+        state.index + 1
+      } of ${state.entries.length}`;
+
+      if (mediaType === "video") {
+        state.image.hidden = true;
+        state.image.removeAttribute("src");
+        stopVideoPlayback();
+        state.video.hidden = false;
+        state.video.src = current.src;
+        state.video.setAttribute("aria-label", label);
+        state.video.play().catch(() => {});
+      } else {
+        stopVideoPlayback();
+        state.video.hidden = true;
+        state.image.hidden = false;
+        state.image.src = current.src;
+        state.image.alt = label;
+      }
+
       state.prevBtn.disabled = state.index === 0;
-      state.nextBtn.disabled = state.index === state.files.length - 1;
+      state.nextBtn.disabled = state.index === state.entries.length - 1;
     }
 
     function closeLightbox() {
       state.overlay.hidden = true;
+      stopVideoPlayback();
+      state.video.hidden = true;
       state.image.removeAttribute("src");
       document.body.classList.remove("lightbox-open");
     }
 
     function step(delta) {
       const nextIndex = state.index + delta;
-      if (nextIndex < 0 || nextIndex >= state.files.length) {
+      if (nextIndex < 0 || nextIndex >= state.entries.length) {
         return;
       }
 
@@ -221,8 +320,8 @@
     }
 
     const api = {
-      open(files, startIndex, labelPrefix) {
-        state.files = files.slice();
+      open(entries, startIndex, labelPrefix) {
+        state.entries = entries.slice();
         state.index = startIndex;
         state.labelPrefix = labelPrefix;
         renderCurrent();
@@ -269,8 +368,8 @@
     return api;
   }
 
-  function openLightbox(lightbox, files, index, type, year) {
+  function openLightbox(lightbox, entries, index, type, year) {
     const labelPrefix = `Nelsoncon ${type === "winter" ? "Winter " : ""}${year}`;
-    lightbox.open(files, index, labelPrefix);
+    lightbox.open(entries, index, labelPrefix);
   }
 })();

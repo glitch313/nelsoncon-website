@@ -5,8 +5,8 @@
 
 $regularYears = 2018..2026
 $winterYears = 2023..2026
-$supportedExts = @(".jpg", ".jpeg", ".png", ".webp")
-$slotPattern = '^photo[1-3]\.(jpg|jpeg|png|webp)$'
+$supportedExts = @(".jpg", ".jpeg", ".png", ".webp", ".mp4", ".webm")
+$slotPattern = '^photo[1-3]\.(jpg|jpeg|png|webp|mp4|webm)$'
 
 function Get-YearPhotoPaths {
   param([string]$FolderPath)
@@ -51,3 +51,4 @@ foreach ($year in $winterYears) {
 
 $manifestJson = $manifest | ConvertTo-Json -Depth 8
 Set-Content -Path $OutputFile -Value $manifestJson -Encoding utf8
+
