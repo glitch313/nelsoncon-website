@@ -507,59 +507,81 @@ body.lightbox-open {
   cursor: not-allowed;
 }
 
-/* Final memories collage layout: no zooming, portrait photos smaller, cleaner card grid */
+/* Final memories collage layout: patterned blocks that use space better */
 .memory-item .memory-gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-  grid-auto-rows: 125px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-auto-rows: 82px;
   grid-auto-flow: dense;
   gap: 0.75rem;
 }
 
 .memory-item .memory-photo-link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.4rem;
-  border-radius: 0.75rem;
-  border: 1px solid rgba(159, 116, 42, 0.22);
-  background: rgba(255, 255, 255, 0.55);
+  display: block;
+  grid-column: span 2;
+  grid-row: span 2;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(159, 116, 42, 0.24);
+  background: rgba(255, 255, 255, 0.62);
   overflow: hidden;
+}
+
+.memory-item .memory-photo-link:nth-child(6n + 2),
+.memory-item .memory-photo-link:nth-child(6n + 5) {
+  grid-column: span 1;
+  grid-row: span 3;
 }
 
 .memory-item .memory-photo-link.is-landscape {
   grid-column: span 2;
+  grid-row: span 2;
+}
+
+.memory-item .memory-photo-link.is-square {
+  grid-column: span 2;
+  grid-row: span 2;
 }
 
 .memory-item .memory-photo-link.is-portrait {
-  grid-row: span 2;
+  grid-column: span 1;
+  grid-row: span 3;
 }
 
 .memory-item .memory-photo {
   display: block;
-  width: auto;
-  height: auto;
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain !important;
+  width: 100%;
+  height: 100%;
+  object-fit: cover !important;
   object-position: center;
 }
 
+/* Portraits stay fully visible and are reduced from previous size target */
 .memory-item .memory-photo-link.is-portrait .memory-photo {
-  max-width: 75%;
-  max-height: 100%;
+  object-fit: contain !important;
+  padding: 0.2rem;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+@media (max-width: 980px) {
+  .memory-item .memory-gallery {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: 78px;
+  }
 }
 
 @media (max-width: 700px) {
   .memory-item .memory-gallery {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-auto-rows: 110px;
+    grid-auto-rows: 96px;
   }
 
+  .memory-item .memory-photo-link,
   .memory-item .memory-photo-link.is-landscape,
-  .memory-item .memory-photo-link.is-portrait {
+  .memory-item .memory-photo-link.is-square,
+  .memory-item .memory-photo-link.is-portrait,
+  .memory-item .memory-photo-link:nth-child(6n + 2),
+  .memory-item .memory-photo-link:nth-child(6n + 5) {
     grid-column: span 1;
     grid-row: span 1;
   }
 }
-
