@@ -506,3 +506,27 @@ body.lightbox-open {
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* Final memory thumbnail behavior: no zoom crop, show full vertical images, and reduce size by ~25% */
+.memory-item .memory-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.memory-item .memory-photo-link {
+  display: flex;
+  justify-content: center;
+  overflow: visible;
+  max-height: none;
+}
+
+.memory-item .memory-photo {
+  display: block;
+  width: 75%;
+  max-width: 560px;
+  height: auto;
+  aspect-ratio: auto !important;
+  object-fit: contain !important;
+  margin: 0 auto;
+}
