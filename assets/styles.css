@@ -543,8 +543,8 @@ body.lightbox-open {
 }
 
 .memory-item .memory-photo-link.is-portrait {
-  grid-column: span 1;
-  grid-row: span 3;
+  grid-column: span 2;
+  grid-row: span 2;
 }
 
 .memory-item .memory-photo {
@@ -555,11 +555,11 @@ body.lightbox-open {
   object-position: center;
 }
 
-/* Portraits stay fully visible and are reduced from previous size target */
+/* Portraits follow the same visual tile sizing as other images */
 .memory-item .memory-photo-link.is-portrait .memory-photo {
-  object-fit: contain !important;
-  padding: 0.2rem;
-  background: rgba(255, 255, 255, 0.78);
+  object-fit: cover !important;
+  padding: 0;
+  background: transparent;
 }
 
 @media (max-width: 980px) {
