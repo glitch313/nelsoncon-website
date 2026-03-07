@@ -12,6 +12,22 @@ python -m http.server 8000
 
 Open `http://localhost:8000/index.html`.
 
+## Memory Photos (Auto Slot Mapping)
+
+Drop JPG/JPEG files into the year folders under `assets/memories/` and `assets/memories/winter/`.
+
+When deployed, the workflow auto-maps newest files to:
+
+- `photo1.jpg`
+- `photo2.jpg`
+- `photo3.jpg`
+
+You can also run this locally:
+
+```powershell
+./sync-memory-photos.ps1
+```
+
 ## GitHub Pages Publish
 
 This repo includes a workflow at `.github/workflows/deploy-pages.yml`.
