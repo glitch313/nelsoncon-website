@@ -330,7 +330,7 @@ select {
   background: #f7f0df;
 }
 
-/* Memory feed layout: stack images vertically and allow long-page scroll */
+/* Memory feed layout: stack images vertically and keep cropped card thumbnails */
 .memory-gallery {
   margin-top: 0.75rem;
   display: flex;
@@ -350,9 +350,8 @@ select {
 
 .memory-photo {
   width: 100%;
-  height: auto;
-  aspect-ratio: auto;
-  object-fit: contain;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
   border-radius: 8px;
   border: 1px solid #c8b389;
   background: #f7f0df;
@@ -402,3 +401,4 @@ body.lightbox-open {
   font: inherit;
   font-weight: 700;
 }
+
