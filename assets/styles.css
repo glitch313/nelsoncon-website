@@ -530,6 +530,10 @@ body.lightbox-open {
   grid-row: span 3;
 }
 
+.memory-item .memory-photo-link.is-tail-fix {
+  grid-column: span var(--tail-span, 2);
+}
+
 .memory-item .memory-photo {
   display: block;
   width: 100%;
@@ -549,7 +553,8 @@ body.lightbox-open {
   .memory-item .memory-photo-link,
   .memory-item .memory-photo-link.is-landscape,
   .memory-item .memory-photo-link.is-square,
-  .memory-item .memory-photo-link.is-portrait {
+  .memory-item .memory-photo-link.is-portrait,
+  .memory-item .memory-photo-link.is-tail-fix {
     grid-column: span 1;
     grid-row: span 1;
   }

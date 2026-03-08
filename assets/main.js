@@ -323,6 +323,57 @@
     gallery.classList.toggle("fill-landscape-gaps", !hasPortrait);
   }
 
+  function getGalleryTileSpan(link) {
+    return link.classList.contains("is-portrait") ? 1 : 2;
+  }
+
+  function alignGalleryTail(gallery) {
+    const links = Array.from(gallery.querySelectorAll(".memory-photo-link"));
+    links.forEach((link) => {
+      link.classList.remove("is-tail-fix");
+      link.style.removeProperty("--tail-span");
+    });
+
+    if (links.length === 0 || window.matchMedia("(max-width: 700px)").matches) {
+      return;
+    }
+
+    const columns = gallery.classList.contains("fill-landscape-gaps") ? 4 : 5;
+    const used = links.reduce((sum, link) => sum + getGalleryTileSpan(link), 0);
+    const remainder = used % columns;
+    if (remainder === 0) {
+      return;
+    }
+
+    let needed = columns - remainder;
+    const tail = links.slice(Math.max(0, links.length - 3));
+
+    for (let i = tail.length - 1; i >= 0 && needed > 0; i -= 1) {
+      const link = tail[i];
+      const base = getGalleryTileSpan(link);
+      const current = Number(link.style.getPropertyValue("--tail-span")) || base;
+      const extra = Math.min(1, columns - current, needed);
+      if (extra <= 0) {
+        continue;
+      }
+
+      link.classList.add("is-tail-fix");
+      link.style.setProperty("--tail-span", String(current + extra));
+      needed -= extra;
+    }
+
+    if (needed > 0) {
+      const link = links[links.length - 1];
+      const base = getGalleryTileSpan(link);
+      const current = Number(link.style.getPropertyValue("--tail-span")) || base;
+      const extra = Math.min(columns - current, needed);
+      if (extra > 0) {
+        link.classList.add("is-tail-fix");
+        link.style.setProperty("--tail-span", String(current + extra));
+      }
+    }
+  }
+
   async function initMemoryGalleries() {
     const galleries = Array.from(
       document.querySelectorAll(".memory-gallery[data-memory-type][data-memory-year]")
@@ -404,6 +455,7 @@
             applyPreviewZoom(link, ratio, itemRandom);
             rebalanceGalleryPortraitFlow(gallery);
             updateLandscapeFillMode(gallery);
+            alignGalleryTail(gallery);
           });
           mediaEl = video;
         } else {
@@ -418,6 +470,7 @@
             applyPreviewZoom(link, ratio, itemRandom);
             rebalanceGalleryPortraitFlow(gallery);
             updateLandscapeFillMode(gallery);
+            alignGalleryTail(gallery);
           });
           mediaEl = img;
         }
@@ -442,6 +495,7 @@
       gallery.appendChild(fragment);
       rebalanceGalleryPortraitFlow(gallery);
       updateLandscapeFillMode(gallery);
+      alignGalleryTail(gallery);
     });
   }
 
