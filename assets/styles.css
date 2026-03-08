@@ -530,6 +530,10 @@ body.lightbox-open {
   grid-row: span 3;
 }
 
+.memory-item .memory-photo-link.is-tail-fill {
+  grid-column: span var(--tail-span, 1);
+}
+
 .memory-item .memory-photo {
   display: block;
   width: 100%;

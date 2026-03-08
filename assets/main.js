@@ -232,40 +232,88 @@
     gallery.appendChild(note);
   }
 
+  function hashString(value) {
+    let hash = 2166136261;
+    for (let i = 0; i < value.length; i += 1) {
+      hash ^= value.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+
+    return hash >>> 0;
+  }
+
+  function createSeededRandom(seed) {
+    let state = seed >>> 0;
+    return () => {
+      state = Math.imul(state, 1664525) + 1013904223;
+      return (state >>> 0) / 4294967296;
+    };
+  }
+
+  function shuffleInPlace(items, random) {
+    for (let i = items.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(random() * (i + 1));
+      const temp = items[i];
+      items[i] = items[j];
+      items[j] = temp;
+    }
+  }
+
   function rebalanceGalleryPortraitFlow(gallery) {
     const links = Array.from(gallery.querySelectorAll(".memory-photo-link"));
     if (links.length < 3) {
       return;
     }
 
-    const portraits = links.filter((link) => link.classList.contains("is-portrait"));
-    if (portraits.length === 0) {
+    const sortedLinks = links.slice().sort((a, b) => {
+      return Number(a.dataset.memoryIndex || 0) - Number(b.dataset.memoryIndex || 0);
+    });
+
+    const portraits = sortedLinks.filter((link) => link.classList.contains("is-portrait"));
+    const wides = sortedLinks.filter((link) => !link.classList.contains("is-portrait"));
+
+    if (portraits.length === 0 || wides.length === 0) {
       return;
     }
 
-    const wides = links.filter((link) => !link.classList.contains("is-portrait"));
-    if (wides.length === 0) {
-      return;
+    const seedSource = `${gallery.dataset.memoryType || ""}-${gallery.dataset.memoryYear || ""}-${links.length}`;
+    const random = createSeededRandom(hashString(seedSource));
+    const portraitPool = portraits.slice();
+    shuffleInPlace(portraitPool, random);
+
+    const slots = new Array(wides.length + 1).fill(0);
+    const tailSlotStart = Math.floor(wides.length * 0.65);
+    const tailPortraitCount = Math.min(
+      portraitPool.length,
+      Math.max(1, Math.min(3, Math.floor(wides.length / 5) || 1))
+    );
+
+    for (let i = 0; i < portraitPool.length; i += 1) {
+      const base = ((i + 1) * (wides.length + 1)) / (portraitPool.length + 1);
+      const jitter = Math.round((random() - 0.5) * 2);
+      let slot = Math.max(0, Math.min(wides.length, Math.round(base + jitter)));
+
+      const tailBand = i >= portraitPool.length - tailPortraitCount;
+      if (tailBand && slot < tailSlotStart) {
+        const tailWidth = Math.max(1, wides.length - tailSlotStart + 1);
+        slot = tailSlotStart + Math.floor(random() * tailWidth);
+      }
+
+      slots[slot] += 1;
     }
 
     const reordered = [];
-    let wideIndex = 0;
     let portraitIndex = 0;
 
-    while (wideIndex < wides.length || portraitIndex < portraits.length) {
-      if (wideIndex < wides.length) {
-        reordered.push(wides[wideIndex]);
-        wideIndex += 1;
-      }
-
-      if (wideIndex < wides.length) {
-        reordered.push(wides[wideIndex]);
-        wideIndex += 1;
-      }
-
-      if (portraitIndex < portraits.length) {
-        reordered.push(portraits[portraitIndex]);
+    for (let slotIndex = 0; slotIndex < slots.length; slotIndex += 1) {
+      const insertCount = slots[slotIndex];
+      for (let count = 0; count < insertCount && portraitIndex < portraitPool.length; count += 1) {
+        reordered.push(portraitPool[portraitIndex]);
         portraitIndex += 1;
+      }
+
+      if (slotIndex < wides.length) {
+        reordered.push(wides[slotIndex]);
       }
     }
 
@@ -273,15 +321,15 @@
       return;
     }
 
-    let isDifferentOrder = false;
+    let changed = false;
     for (let i = 0; i < links.length; i += 1) {
       if (links[i] !== reordered[i]) {
-        isDifferentOrder = true;
+        changed = true;
         break;
       }
     }
 
-    if (!isDifferentOrder) {
+    if (!changed) {
       return;
     }
 
@@ -301,6 +349,41 @@
 
     const hasPortrait = links.some((link) => link.classList.contains("is-portrait"));
     gallery.classList.toggle("fill-landscape-gaps", !hasPortrait);
+  }
+
+  function applyTailFillSpan(gallery) {
+    const links = Array.from(gallery.querySelectorAll(".memory-photo-link"));
+    links.forEach((link) => {
+      link.classList.remove("is-tail-fill");
+      link.style.removeProperty("--tail-span");
+    });
+
+    if (links.length === 0 || window.matchMedia("(max-width: 700px)").matches) {
+      return;
+    }
+
+    const columns = gallery.classList.contains("fill-landscape-gaps") ? 4 : 5;
+    const usedColumns = links.reduce((sum, link) => {
+      return sum + (link.classList.contains("is-portrait") ? 1 : 2);
+    }, 0);
+
+    let missingColumns = (columns - (usedColumns % columns)) % columns;
+    if (missingColumns === 0) {
+      return;
+    }
+
+    for (let i = links.length - 1; i >= 0 && missingColumns > 0; i -= 1) {
+      const link = links[i];
+      const baseSpan = link.classList.contains("is-portrait") ? 1 : 2;
+      const extra = Math.min(columns - baseSpan, missingColumns);
+      if (extra <= 0) {
+        continue;
+      }
+
+      link.classList.add("is-tail-fill");
+      link.style.setProperty("--tail-span", String(baseSpan + extra));
+      missingColumns -= extra;
+    }
   }
   async function initMemoryGalleries() {
     const galleries = Array.from(
@@ -353,6 +436,7 @@
         link.type = "button";
         link.className = "memory-photo-link is-square";
         link.setAttribute("aria-label", `Open ${type} ${year} media ${idx + 1}`);
+        link.dataset.memoryIndex = String(idx);
 
         const mediaType = getMediaType(entry.src, entry.type);
         const label = `Nelsoncon ${type === "winter" ? "Winter " : ""}${year} ${
@@ -374,6 +458,7 @@
             applyOrientationClass(link, video.videoWidth / Math.max(1, video.videoHeight));
             rebalanceGalleryPortraitFlow(gallery);
             updateLandscapeFillMode(gallery);
+            applyTailFillSpan(gallery);
           });
           mediaEl = video;
         } else {
@@ -386,6 +471,7 @@
             applyOrientationClass(link, img.naturalWidth / Math.max(1, img.naturalHeight));
             rebalanceGalleryPortraitFlow(gallery);
             updateLandscapeFillMode(gallery);
+            applyTailFillSpan(gallery);
           });
           mediaEl = img;
         }
@@ -409,6 +495,7 @@
       gallery.appendChild(fragment);
       rebalanceGalleryPortraitFlow(gallery);
       updateLandscapeFillMode(gallery);
+      applyTailFillSpan(gallery);
     });
   }
 
