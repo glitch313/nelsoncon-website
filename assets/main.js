@@ -6,6 +6,7 @@
   initRsvpForm();
   initMemoriesTabs();
   initMemoryGalleries();
+  initVenuePhotoGallery();
 
   function setFooterYear() {
     const yearNodes = document.querySelectorAll("[data-year]");
@@ -225,6 +226,33 @@
     });
   }
 
+
+  function initVenuePhotoGallery() {
+    const buttons = Array.from(document.querySelectorAll(".venue-photo-grid [data-venue-photo]"));
+    if (buttons.length === 0) {
+      return;
+    }
+
+    const entries = buttons
+      .map((button) => ({ src: (button.dataset.venuePhoto || "").trim(), type: "image" }))
+      .filter((entry) => entry.src.length > 0);
+
+    if (entries.length === 0) {
+      return;
+    }
+
+    const lightbox = buildLightbox();
+
+    buttons.forEach((button, index) => {
+      if (!button.dataset.venuePhoto) {
+        return;
+      }
+
+      button.addEventListener("click", () => {
+        lightbox.open(entries, index, "Host Venue");
+      });
+    });
+  }
   function applyOrientationClass(link, ratio) {
     link.classList.remove("is-portrait", "is-landscape", "is-square");
     if (ratio <= 0.82) {
@@ -438,3 +466,4 @@
     lightbox.open(entries, index, labelPrefix);
   }
 })();
+
