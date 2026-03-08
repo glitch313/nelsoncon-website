@@ -561,3 +561,20 @@ body.lightbox-open {
 .memory-lightbox-video[hidden] {
   display: none;
 }
+
+.venue-photo-grid {
+  margin-top: 0.7rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.65rem;
+}
+
+.venue-photo-grid img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 1px solid #c8b389;
+  border-radius: 8px;
+  background: #f7f0df;
+}
