@@ -621,3 +621,49 @@ body.lightbox-open {
     grid-template-columns: 1fr;
   }
 }
+
+.site-footer-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 0;
+}
+
+.site-footer-text {
+  white-space: nowrap;
+}
+
+.site-footer-icons {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+}
+
+.site-footer-icon {
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: #0e1320;
+  flex: 0 0 auto;
+}
+
+.site-footer-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform: scale(1.55);
+  transform-origin: center;
+  display: block;
+}
+
+@media (max-width: 760px) {
+  .site-footer-row {
+    flex-wrap: wrap;
+    row-gap: 0.4rem;
+  }
+}
+
+
