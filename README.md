@@ -36,7 +36,7 @@ Supported videos:
 This compresses videos first (if `ffmpeg` is installed), then refreshes the gallery manifest:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\prepare-memory-media.ps1
+powershell -ExecutionPolicy Bypass -File .\\prepare-memory-media.ps1 -TargetSizeMB 50
 ```
 
 If `ffmpeg` is missing, it still updates the manifest.
@@ -55,3 +55,4 @@ This repo includes `.github/workflows/deploy-pages.yml`, which auto-syncs the me
 2. In GitHub: `Settings -> Pages -> Build and deployment -> Source: GitHub Actions`.
 3. Push to `main` (or run workflow manually in `Actions`).
 4. Site URL: `https://<your-username>.github.io/<repo-name>/`
+

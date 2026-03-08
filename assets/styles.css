@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   --bg: #f4efe5;
   --ink: #152238;
   --accent: #b6842a;
@@ -654,9 +654,14 @@ body.lightbox-open {
   height: 100%;
   object-fit: cover;
   object-position: center;
-  transform: scale(1.55);
+  transform: scale(1.38);
   transform-origin: center;
   display: block;
+}
+
+.site-footer-icon img[src*="4.png"] {
+  object-position: 76% 40%;
+  transform: scale(1.28);
 }
 
 @media (max-width: 760px) {
