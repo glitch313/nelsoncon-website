@@ -637,7 +637,7 @@ body.lightbox-open {
 
 
 .contact-card {
-  width: fit-content;
+  width: 100%;
   max-width: 100%;
 }
 
