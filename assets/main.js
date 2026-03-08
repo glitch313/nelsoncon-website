@@ -259,11 +259,24 @@
     }
   }
 
+  const galleryLayoutFrames = new WeakMap();
+
+  function scheduleGalleryLayout(gallery) {
+    if (galleryLayoutFrames.has(gallery)) {
+      return;
+    }
+
+    const frame = requestAnimationFrame(() => {
+      galleryLayoutFrames.delete(gallery);
+      rebalanceGalleryPortraitFlow(gallery);
+    });
+    galleryLayoutFrames.set(gallery, frame);
+  }
+
   function clearGallerySpanOverrides(gallery) {
     const links = Array.from(gallery.querySelectorAll(".memory-photo-link"));
     links.forEach((link) => {
-      link.classList.remove("is-tail-fix", "is-row-fill");
-      link.style.removeProperty("--tail-span");
+      link.classList.remove("is-row-fill");
       link.style.removeProperty("--tile-span");
     });
   }
@@ -282,18 +295,6 @@
 
     return matches[Math.floor(random() * matches.length)];
   }
-
-  function updateLandscapeFillMode(gallery) {
-    const links = Array.from(gallery.querySelectorAll(".memory-photo-link"));
-    if (links.length === 0) {
-      gallery.classList.remove("fill-landscape-gaps");
-      return;
-    }
-
-    const hasPortrait = links.some((link) => link.classList.contains("is-portrait"));
-    gallery.classList.toggle("fill-landscape-gaps", !hasPortrait);
-  }
-
   function getGalleryTileSpan(link) {
     return link.classList.contains("is-portrait") ? 1 : 2;
   }
@@ -427,9 +428,6 @@
 
     gallery.appendChild(fragment);
   }
-
-  function alignGalleryTail() {}
-
   async function initMemoryGalleries() {
     const galleries = Array.from(
       document.querySelectorAll(".memory-gallery[data-memory-type][data-memory-year]")
@@ -509,9 +507,7 @@
             const ratio = video.videoWidth / Math.max(1, video.videoHeight);
             applyOrientationClass(link, ratio);
             applyPreviewZoom(link, ratio, itemRandom);
-            rebalanceGalleryPortraitFlow(gallery);
-            updateLandscapeFillMode(gallery);
-            alignGalleryTail(gallery);
+            scheduleGalleryLayout(gallery);
           });
           mediaEl = video;
         } else {
@@ -524,9 +520,7 @@
             const ratio = img.naturalWidth / Math.max(1, img.naturalHeight);
             applyOrientationClass(link, ratio);
             applyPreviewZoom(link, ratio, itemRandom);
-            rebalanceGalleryPortraitFlow(gallery);
-            updateLandscapeFillMode(gallery);
-            alignGalleryTail(gallery);
+            scheduleGalleryLayout(gallery);
           });
           mediaEl = img;
         }
@@ -549,9 +543,7 @@
       });
 
       gallery.appendChild(fragment);
-      rebalanceGalleryPortraitFlow(gallery);
-      updateLandscapeFillMode(gallery);
-      alignGalleryTail(gallery);
+      scheduleGalleryLayout(gallery);
     });
   }
 
