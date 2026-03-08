@@ -232,6 +232,16 @@
     gallery.appendChild(note);
   }
 
+  function updateLandscapeFillMode(gallery) {
+    const links = Array.from(gallery.querySelectorAll(".memory-photo-link"));
+    if (links.length === 0) {
+      gallery.classList.remove("fill-landscape-gaps");
+      return;
+    }
+
+    const hasPortrait = links.some((link) => link.classList.contains("is-portrait"));
+    gallery.classList.toggle("fill-landscape-gaps", !hasPortrait);
+  }
   async function initMemoryGalleries() {
     const galleries = Array.from(
       document.querySelectorAll(".memory-gallery[data-memory-type][data-memory-year]")
@@ -302,6 +312,7 @@
           video.setAttribute("aria-label", label);
           video.addEventListener("loadedmetadata", () => {
             applyOrientationClass(link, video.videoWidth / Math.max(1, video.videoHeight));
+            updateLandscapeFillMode(gallery);
           });
           mediaEl = video;
         } else {
@@ -312,6 +323,7 @@
           img.loading = "lazy";
           img.addEventListener("load", () => {
             applyOrientationClass(link, img.naturalWidth / Math.max(1, img.naturalHeight));
+            updateLandscapeFillMode(gallery);
           });
           mediaEl = img;
         }
@@ -333,6 +345,7 @@
       });
 
       gallery.appendChild(fragment);
+      updateLandscapeFillMode(gallery);
     });
   }
 
