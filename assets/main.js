@@ -30,16 +30,15 @@
       const fullName = form.fullName.value.trim();
       const email = form.email.value.trim();
       const ticketType = form.ticketType.value.trim();
-      const paymentMethod = form.paymentMethod.value.trim();
 
-      if (!fullName || !email || !ticketType || !paymentMethod) {
+      if (!fullName || !email || !ticketType) {
         message.className = "form-message error";
         message.textContent = "Please complete all fields before submitting.";
         return;
       }
 
       message.className = "form-message ok";
-      message.textContent = `Thanks, ${fullName}. Your ${ticketType} RSVP was recorded (${paymentMethod}).`;
+      message.textContent = `Thanks, ${fullName}. Your ${ticketType} RSVP was recorded.`;
       form.reset();
     });
   }
