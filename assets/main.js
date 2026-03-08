@@ -218,7 +218,11 @@
       });
     });
 
-    const initialTab = tabs.find((tab) => tab.classList.contains("is-active")) || tabs[0];
+    const requestedYear = new URLSearchParams(window.location.search).get("year") || "";
+    const initialTab =
+      tabs.find((tab) => tab.dataset.tabYear === requestedYear.trim()) ||
+      tabs.find((tab) => tab.classList.contains("is-active")) ||
+      tabs[0];
     if (initialTab) {
       setActiveYear(initialTab.dataset.tabYear);
     }
