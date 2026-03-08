@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
   const IMAGE_EXT_RE = /\.(avif|bmp|gif|jpe?g|png|svg|webp)(\?.*)?$/i;
   const VIDEO_EXT_RE = /\.(mp4|webm)(\?.*)?$/i;
 
@@ -100,7 +100,7 @@
       });
     }
 
-    function setActiveYear(year) {
+    function setActiveYear(year, { focusTab = false } = {}) {
       tabs.forEach((tab) => {
         const active = tab.dataset.tabYear === year;
         tab.classList.toggle("is-active", active);
@@ -114,12 +114,42 @@
       });
 
       const activeTab = tabs.find((tab) => tab.dataset.tabYear === year);
+      if (activeTab && focusTab) {
+        activeTab.focus();
+      }
+
       renderAttendees(activeTab, year);
     }
 
-    tabs.forEach((tab) => {
+    function activateTabByIndex(index, { focusTab = false } = {}) {
+      const normalizedIndex = (index + tabs.length) % tabs.length;
+      const targetTab = tabs[normalizedIndex];
+      if (!targetTab) {
+        return;
+      }
+
+      setActiveYear(targetTab.dataset.tabYear, { focusTab });
+    }
+
+    tabs.forEach((tab, index) => {
       tab.addEventListener("click", () => {
         setActiveYear(tab.dataset.tabYear);
+      });
+
+      tab.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          activateTabByIndex(index - 1, { focusTab: true });
+        } else if (event.key === "ArrowRight") {
+          event.preventDefault();
+          activateTabByIndex(index + 1, { focusTab: true });
+        } else if (event.key === "Home") {
+          event.preventDefault();
+          activateTabByIndex(0, { focusTab: true });
+        } else if (event.key === "End") {
+          event.preventDefault();
+          activateTabByIndex(tabs.length - 1, { focusTab: true });
+        }
       });
     });
 
@@ -127,6 +157,14 @@
     if (initialTab) {
       setActiveYear(initialTab.dataset.tabYear);
     }
+  }
+
+  function renderGalleryMessage(gallery, message) {
+    gallery.innerHTML = "";
+    const note = document.createElement("p");
+    note.className = "memory-gallery-empty";
+    note.textContent = message;
+    gallery.appendChild(note);
   }
 
   async function initMemoryGalleries() {
@@ -141,13 +179,19 @@
     let manifest;
     try {
       const response = await fetch("./assets/memories/photo-manifest.json", {
-        cache: "no-store",
+        cache: "no-cache",
       });
       if (!response.ok) {
+        galleries.forEach((gallery) => {
+          renderGalleryMessage(gallery, "Could not load media right now.");
+        });
         return;
       }
       manifest = await response.json();
     } catch {
+      galleries.forEach((gallery) => {
+        renderGalleryMessage(gallery, "Could not load media right now.");
+      });
       return;
     }
 
@@ -163,6 +207,7 @@
       gallery.innerHTML = "";
 
       if (entries.length === 0) {
+        renderGalleryMessage(gallery, `No media uploaded for ${year} yet.`);
         return;
       }
 
@@ -226,7 +271,6 @@
     });
   }
 
-
   function initVenuePhotoGallery() {
     const buttons = Array.from(document.querySelectorAll(".venue-photo-grid [data-venue-photo]"));
     if (buttons.length === 0) {
@@ -281,22 +325,41 @@
   }
 
   function normalizeMediaEntries(rawEntries) {
+    const seen = new Set();
+
     return rawEntries
       .map((entry) => {
         if (typeof entry === "string") {
-          return { src: entry, type: getMediaType(entry) };
+          const src = entry.trim();
+          if (!src) {
+            return null;
+          }
+
+          return { src, type: getMediaType(src) };
         }
 
         if (!entry || typeof entry.src !== "string") {
           return null;
         }
 
+        const src = entry.src.trim();
+        if (!src) {
+          return null;
+        }
+
         return {
-          src: entry.src,
-          type: getMediaType(entry.src, entry.type),
+          src,
+          type: getMediaType(src, entry.type),
         };
       })
-      .filter(Boolean);
+      .filter((entry) => {
+        if (!entry || seen.has(entry.src)) {
+          return false;
+        }
+
+        seen.add(entry.src);
+        return true;
+      });
   }
 
   function buildLightbox() {

@@ -359,6 +359,16 @@ select {
   gap: 0.7rem;
 }
 
+.memory-gallery-empty {
+  margin: 0;
+  padding: 0.45rem 0.6rem;
+  border: 1px dashed #c8b389;
+  border-radius: 8px;
+  background: #fff9ef;
+  color: #5b6472;
+  font-size: 0.95rem;
+}
+
 .memory-photo-link {
   display: block;
   width: 100%;
@@ -519,7 +529,7 @@ body.lightbox-open {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover !important;
+  object-fit: cover;
   object-position: center;
 }
 
@@ -543,7 +553,7 @@ body.lightbox-open {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover !important;
+  object-fit: cover;
   object-position: center;
   background: #111827;
 }
