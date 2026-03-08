@@ -56,8 +56,32 @@
     }
 
     const attendeesList = document.querySelector("[data-attendees-list]");
+    const attendeesHeading = document.querySelector(".attendees-panel h3");
+    const isWinter = tabs.some((tab) =>
+      (tab.getAttribute("aria-controls") || "").startsWith("wmem-")
+    );
+
+    function formatAttendeesHeading(year) {
+      const numericYear = Number(year);
+
+      if (isWinter) {
+        const winterNumber = Number.isFinite(numericYear) ? numericYear - 2022 : 1;
+        return `Nelsoncon Winter ${Math.max(1, winterNumber)} Attendees`;
+      }
+
+      const nelsonconNumber = Number.isFinite(numericYear) ? numericYear - 2017 : 1;
+      if (nelsonconNumber <= 1) {
+        return "Nelsoncon Attendees";
+      }
+
+      return `Nelsoncon ${nelsonconNumber} Attendees`;
+    }
 
     function renderAttendees(activeTab, year) {
+      if (attendeesHeading) {
+        attendeesHeading.textContent = formatAttendeesHeading(year);
+      }
+
       if (!attendeesList) {
         return;
       }
