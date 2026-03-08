@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <clipPath id="circleClip">
+      <circle cx="32" cy="32" r="31" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#circleClip)">
+    <!-- Zoom toward the face area and keep transparent corners for a circular favicon. -->
+    <image
+      href="./tab-icon.webp"
+      x="-34"
+      y="-8"
+      width="132"
+      height="88"
+      preserveAspectRatio="xMidYMid slice" />
+  </g>
+</svg>
