@@ -323,125 +323,6 @@
     gallery.classList.toggle("fill-landscape-gaps", !hasPortrait);
   }
 
-  function getGalleryBaseSpan(link) {
-    if (link.classList.contains("is-portrait")) {
-      return 1;
-    }
-
-    if (link.classList.contains("is-landscape-large")) {
-      return 3;
-    }
-
-    return 2;
-  }
-
-  function applyLandscapeFeatureSpans(gallery) {
-    const links = Array.from(gallery.querySelectorAll(".memory-photo-link"));
-    links.forEach((link) => {
-      link.classList.remove("is-landscape-large");
-    });
-
-    if (links.length < 6 || window.matchMedia("(max-width: 700px)").matches) {
-      return;
-    }
-
-    const landscapeLinks = links.filter((link) => !link.classList.contains("is-portrait"));
-    if (landscapeLinks.length < 4) {
-      return;
-    }
-
-    const seedSource = `${gallery.dataset.memoryType || ""}-${gallery.dataset.memoryYear || ""}-feature-${links.length}`;
-    const random = createSeededRandom(hashString(seedSource));
-    const shuffled = landscapeLinks.slice();
-    shuffleInPlace(shuffled, random);
-
-    const targetCount = Math.max(1, Math.floor(landscapeLinks.length / 7));
-    let applied = 0;
-
-    while (shuffled.length > 0 && applied < targetCount) {
-      const candidate = shuffled.pop();
-      const index = links.indexOf(candidate);
-      if (index < 0) {
-        continue;
-      }
-
-      const left = links[index - 1];
-      const right = links[index + 1];
-      if (
-        (left && left.classList.contains("is-landscape-large")) ||
-        (right && right.classList.contains("is-landscape-large"))
-      ) {
-        continue;
-      }
-
-      candidate.classList.add("is-landscape-large");
-      applied += 1;
-    }
-
-    if (applied === 0 && landscapeLinks.length > 0) {
-      landscapeLinks[0].classList.add("is-landscape-large");
-    }
-  }
-
-  function applyTailFillSpan(gallery) {
-    const links = Array.from(gallery.querySelectorAll(".memory-photo-link"));
-    links.forEach((link) => {
-      link.classList.remove("is-tail-fill");
-      link.style.removeProperty("--tail-span");
-    });
-
-    if (links.length === 0 || window.matchMedia("(max-width: 700px)").matches) {
-      return;
-    }
-
-    const columns = gallery.classList.contains("fill-landscape-gaps") ? 4 : 5;
-    const usedColumns = links.reduce((sum, link) => {
-      return sum + getGalleryBaseSpan(link);
-    }, 0);
-
-    let missingColumns = (columns - (usedColumns % columns)) % columns;
-    if (missingColumns === 0) {
-      return;
-    }
-
-    const tailCandidates = links.slice(Math.max(0, links.length - 8)).reverse();
-    const landscapeTail = tailCandidates.filter((link) => !link.classList.contains("is-portrait"));
-    const portraitTail = tailCandidates.filter((link) => link.classList.contains("is-portrait"));
-
-    function growLink(link, maxExtra) {
-      if (missingColumns <= 0) {
-        return;
-      }
-
-      const baseSpan = getGalleryBaseSpan(link);
-      const currentSpan = Number(link.style.getPropertyValue("--tail-span")) || baseSpan;
-      const availableExtra = columns - currentSpan;
-      const extra = Math.min(availableExtra, maxExtra, missingColumns);
-
-      if (extra <= 0) {
-        return;
-      }
-
-      link.classList.add("is-tail-fill");
-      link.style.setProperty("--tail-span", String(currentSpan + extra));
-      missingColumns -= extra;
-    }
-
-    // First pass: gently widen trailing landscapes.
-    landscapeTail.forEach((link) => {
-      growLink(link, 1);
-    });
-
-    // Second pass: use portraits near the end to close remaining 1-col gaps.
-    portraitTail.forEach((link) => {
-      growLink(link, 1);
-    });
-
-    // Final pass: if needed, fully consume leftover columns with any tail tile.
-    tailCandidates.forEach((link) => {
-      growLink(link, columns);
-    });
-  }
   async function initMemoryGalleries() {
     const galleries = Array.from(
       document.querySelectorAll(".memory-gallery[data-memory-type][data-memory-year]")
@@ -475,9 +356,13 @@
     galleries.forEach((gallery) => {
       const type = gallery.dataset.memoryType;
       const year = gallery.dataset.memoryYear;
-      const entries = normalizeMediaEntries(
+      let entries = normalizeMediaEntries(
         (((manifest || {})[type] || {})[year] || []).filter(Boolean)
       );
+
+      const orderRandom = createSeededRandom(hashString(`${type}-${year}-${entries.length}-order`));
+      entries = entries.slice();
+      shuffleInPlace(entries, orderRandom);
 
       gallery.innerHTML = "";
 
@@ -500,6 +385,8 @@
           mediaType === "video" ? "video" : "photo"
         } ${idx + 1}`;
 
+        const itemRandom = createSeededRandom(hashString(`${type}-${year}-${idx}-${entry.src}`));
+
         let mediaEl;
         if (mediaType === "video") {
           link.classList.add("is-video");
@@ -512,7 +399,10 @@
           video.preload = "metadata";
           video.setAttribute("aria-label", label);
           video.addEventListener("loadedmetadata", () => {
-            applyOrientationClass(link, video.videoWidth / Math.max(1, video.videoHeight));
+            const ratio = video.videoWidth / Math.max(1, video.videoHeight);
+            applyOrientationClass(link, ratio);
+            applyPreviewZoom(link, ratio, itemRandom);
+            rebalanceGalleryPortraitFlow(gallery);
             updateLandscapeFillMode(gallery);
           });
           mediaEl = video;
@@ -523,7 +413,10 @@
           img.alt = label;
           img.loading = "lazy";
           img.addEventListener("load", () => {
-            applyOrientationClass(link, img.naturalWidth / Math.max(1, img.naturalHeight));
+            const ratio = img.naturalWidth / Math.max(1, img.naturalHeight);
+            applyOrientationClass(link, ratio);
+            applyPreviewZoom(link, ratio, itemRandom);
+            rebalanceGalleryPortraitFlow(gallery);
             updateLandscapeFillMode(gallery);
           });
           mediaEl = img;
@@ -532,6 +425,7 @@
         link.addEventListener("click", () => {
           openLightbox(lightbox, entries, idx, type, year);
         });
+        attachPreviewZoomControls(link);
 
         link.appendChild(mediaEl);
 
@@ -546,6 +440,7 @@
       });
 
       gallery.appendChild(fragment);
+      rebalanceGalleryPortraitFlow(gallery);
       updateLandscapeFillMode(gallery);
     });
   }
@@ -587,6 +482,48 @@
     }
   }
 
+  function applyPreviewZoom(link, ratio, random) {
+    let scale = 1;
+    if (ratio >= 1.35) {
+      scale = 1.03 + random() * 0.09;
+    } else if (ratio <= 0.82) {
+      scale = 0.97 + random() * 0.06;
+    } else {
+      scale = 1.0 + random() * 0.06;
+    }
+
+    const posX = 50 + (random() - 0.5) * 14;
+    const posY = 50 + (random() - 0.5) * 12;
+
+    link.style.setProperty("--preview-scale", scale.toFixed(3));
+    link.style.setProperty("--preview-pos-x", `${posX.toFixed(1)}%`);
+    link.style.setProperty("--preview-pos-y", `${posY.toFixed(1)}%`);
+  }
+
+  function attachPreviewZoomControls(link) {
+    link.addEventListener(
+      "wheel",
+      (event) => {
+        if (!event.ctrlKey && !event.shiftKey) {
+          return;
+        }
+
+        event.preventDefault();
+        const current = Number(link.style.getPropertyValue("--preview-scale")) || 1;
+        const delta = event.deltaY < 0 ? 0.05 : -0.05;
+        const next = Math.min(1.35, Math.max(0.85, current + delta));
+        link.style.setProperty("--preview-scale", next.toFixed(3));
+      },
+      { passive: false }
+    );
+
+    link.addEventListener("dblclick", (event) => {
+      event.preventDefault();
+      link.style.removeProperty("--preview-scale");
+      link.style.removeProperty("--preview-pos-x");
+      link.style.removeProperty("--preview-pos-y");
+    });
+  }
   function getMediaType(src, explicitType) {
     if (explicitType === "video" || explicitType === "image") {
       return explicitType;

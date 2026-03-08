@@ -525,18 +525,9 @@ body.lightbox-open {
   grid-row: span 3;
 }
 
-.memory-item .memory-photo-link.is-landscape-large {
-  grid-column: span 3;
-  grid-row: span 3;
-}
-
 .memory-item .memory-photo-link.is-portrait {
   grid-column: span 1;
   grid-row: span 3;
-}
-
-.memory-item .memory-photo-link.is-tail-fill {
-  grid-column: span var(--tail-span, 1);
 }
 
 .memory-item .memory-photo {
@@ -544,7 +535,9 @@ body.lightbox-open {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center;
+  object-position: var(--preview-pos-x, 50%) var(--preview-pos-y, 50%);
+  transform: scale(var(--preview-scale, 1));
+  transform-origin: center;
 }
 
 @media (max-width: 700px) {
@@ -555,7 +548,6 @@ body.lightbox-open {
 
   .memory-item .memory-photo-link,
   .memory-item .memory-photo-link.is-landscape,
-  .memory-item .memory-photo-link.is-landscape-large,
   .memory-item .memory-photo-link.is-square,
   .memory-item .memory-photo-link.is-portrait {
     grid-column: span 1;
@@ -569,7 +561,9 @@ body.lightbox-open {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center;
+  object-position: var(--preview-pos-x, 50%) var(--preview-pos-y, 50%);
+  transform: scale(var(--preview-scale, 1));
+  transform-origin: center;
   background: #111827;
 }
 
