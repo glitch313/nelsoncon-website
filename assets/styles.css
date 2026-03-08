@@ -525,6 +525,11 @@ body.lightbox-open {
   grid-row: span 3;
 }
 
+.memory-item .memory-photo-link.is-landscape-large {
+  grid-column: span 3;
+  grid-row: span 3;
+}
+
 .memory-item .memory-photo-link.is-portrait {
   grid-column: span 1;
   grid-row: span 3;
@@ -550,6 +555,7 @@ body.lightbox-open {
 
   .memory-item .memory-photo-link,
   .memory-item .memory-photo-link.is-landscape,
+  .memory-item .memory-photo-link.is-landscape-large,
   .memory-item .memory-photo-link.is-square,
   .memory-item .memory-photo-link.is-portrait {
     grid-column: span 1;

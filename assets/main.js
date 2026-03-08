@@ -376,6 +376,66 @@
     gallery.classList.toggle("fill-landscape-gaps", !hasPortrait);
   }
 
+  function getGalleryBaseSpan(link) {
+    if (link.classList.contains("is-portrait")) {
+      return 1;
+    }
+
+    if (link.classList.contains("is-landscape-large")) {
+      return 3;
+    }
+
+    return 2;
+  }
+
+  function applyLandscapeFeatureSpans(gallery) {
+    const links = Array.from(gallery.querySelectorAll(".memory-photo-link"));
+    links.forEach((link) => {
+      link.classList.remove("is-landscape-large");
+    });
+
+    if (links.length < 6 || window.matchMedia("(max-width: 700px)").matches) {
+      return;
+    }
+
+    const landscapeLinks = links.filter((link) => !link.classList.contains("is-portrait"));
+    if (landscapeLinks.length < 4) {
+      return;
+    }
+
+    const seedSource = `${gallery.dataset.memoryType || ""}-${gallery.dataset.memoryYear || ""}-feature-${links.length}`;
+    const random = createSeededRandom(hashString(seedSource));
+    const shuffled = landscapeLinks.slice();
+    shuffleInPlace(shuffled, random);
+
+    const targetCount = Math.max(1, Math.floor(landscapeLinks.length / 7));
+    let applied = 0;
+
+    while (shuffled.length > 0 && applied < targetCount) {
+      const candidate = shuffled.pop();
+      const index = links.indexOf(candidate);
+      if (index < 0) {
+        continue;
+      }
+
+      const left = links[index - 1];
+      const right = links[index + 1];
+      if (
+        (left && left.classList.contains("is-landscape-large")) ||
+        (right && right.classList.contains("is-landscape-large"))
+      ) {
+        continue;
+      }
+
+      candidate.classList.add("is-landscape-large");
+      applied += 1;
+    }
+
+    if (applied === 0 && landscapeLinks.length > 0) {
+      landscapeLinks[0].classList.add("is-landscape-large");
+    }
+  }
+
   function applyTailFillSpan(gallery) {
     const links = Array.from(gallery.querySelectorAll(".memory-photo-link"));
     links.forEach((link) => {
@@ -389,7 +449,7 @@
 
     const columns = gallery.classList.contains("fill-landscape-gaps") ? 4 : 5;
     const usedColumns = links.reduce((sum, link) => {
-      return sum + (link.classList.contains("is-portrait") ? 1 : 2);
+      return sum + getGalleryBaseSpan(link);
     }, 0);
 
     let missingColumns = (columns - (usedColumns % columns)) % columns;
@@ -406,7 +466,7 @@
         return;
       }
 
-      const baseSpan = link.classList.contains("is-portrait") ? 1 : 2;
+      const baseSpan = getGalleryBaseSpan(link);
       const currentSpan = Number(link.style.getPropertyValue("--tail-span")) || baseSpan;
       const availableExtra = columns - currentSpan;
       const extra = Math.min(availableExtra, maxExtra, missingColumns);
@@ -508,6 +568,7 @@
             applyOrientationClass(link, video.videoWidth / Math.max(1, video.videoHeight));
             rebalanceGalleryPortraitFlow(gallery);
             updateLandscapeFillMode(gallery);
+            applyLandscapeFeatureSpans(gallery);
             applyTailFillSpan(gallery);
           });
           mediaEl = video;
@@ -521,6 +582,7 @@
             applyOrientationClass(link, img.naturalWidth / Math.max(1, img.naturalHeight));
             rebalanceGalleryPortraitFlow(gallery);
             updateLandscapeFillMode(gallery);
+            applyLandscapeFeatureSpans(gallery);
             applyTailFillSpan(gallery);
           });
           mediaEl = img;
@@ -545,6 +607,7 @@
       gallery.appendChild(fragment);
       rebalanceGalleryPortraitFlow(gallery);
       updateLandscapeFillMode(gallery);
+      applyLandscapeFeatureSpans(gallery);
       applyTailFillSpan(gallery);
     });
   }
