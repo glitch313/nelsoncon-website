@@ -480,13 +480,6 @@ body.lightbox-open {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
-.memory-item .memory-gallery.fill-landscape-gaps .memory-photo-link,
-.memory-item .memory-gallery.fill-landscape-gaps .memory-photo-link.is-landscape,
-.memory-item .memory-gallery.fill-landscape-gaps .memory-photo-link.is-square {
-  grid-column: span 2;
-  grid-row: span 3;
-}
-
 .memory-item .memory-photo-link {
   display: block;
   grid-column: span 2;

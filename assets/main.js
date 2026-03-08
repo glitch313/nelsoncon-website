@@ -232,6 +232,66 @@
     gallery.appendChild(note);
   }
 
+  function rebalanceGalleryPortraitFlow(gallery) {
+    const links = Array.from(gallery.querySelectorAll(".memory-photo-link"));
+    if (links.length < 3) {
+      return;
+    }
+
+    const portraits = links.filter((link) => link.classList.contains("is-portrait"));
+    if (portraits.length === 0) {
+      return;
+    }
+
+    const wides = links.filter((link) => !link.classList.contains("is-portrait"));
+    if (wides.length === 0) {
+      return;
+    }
+
+    const reordered = [];
+    let wideIndex = 0;
+    let portraitIndex = 0;
+
+    while (wideIndex < wides.length || portraitIndex < portraits.length) {
+      if (wideIndex < wides.length) {
+        reordered.push(wides[wideIndex]);
+        wideIndex += 1;
+      }
+
+      if (wideIndex < wides.length) {
+        reordered.push(wides[wideIndex]);
+        wideIndex += 1;
+      }
+
+      if (portraitIndex < portraits.length) {
+        reordered.push(portraits[portraitIndex]);
+        portraitIndex += 1;
+      }
+    }
+
+    if (reordered.length !== links.length) {
+      return;
+    }
+
+    let isDifferentOrder = false;
+    for (let i = 0; i < links.length; i += 1) {
+      if (links[i] !== reordered[i]) {
+        isDifferentOrder = true;
+        break;
+      }
+    }
+
+    if (!isDifferentOrder) {
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    reordered.forEach((link) => {
+      fragment.appendChild(link);
+    });
+    gallery.appendChild(fragment);
+  }
+
   function updateLandscapeFillMode(gallery) {
     const links = Array.from(gallery.querySelectorAll(".memory-photo-link"));
     if (links.length === 0) {
@@ -312,6 +372,7 @@
           video.setAttribute("aria-label", label);
           video.addEventListener("loadedmetadata", () => {
             applyOrientationClass(link, video.videoWidth / Math.max(1, video.videoHeight));
+            rebalanceGalleryPortraitFlow(gallery);
             updateLandscapeFillMode(gallery);
           });
           mediaEl = video;
@@ -323,6 +384,7 @@
           img.loading = "lazy";
           img.addEventListener("load", () => {
             applyOrientationClass(link, img.naturalWidth / Math.max(1, img.naturalHeight));
+            rebalanceGalleryPortraitFlow(gallery);
             updateLandscapeFillMode(gallery);
           });
           mediaEl = img;
@@ -345,6 +407,7 @@
       });
 
       gallery.appendChild(fragment);
+      rebalanceGalleryPortraitFlow(gallery);
       updateLandscapeFillMode(gallery);
     });
   }
