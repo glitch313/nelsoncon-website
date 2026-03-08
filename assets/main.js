@@ -259,57 +259,28 @@
     }
   }
 
-  function rebalanceGalleryPortraitFlow(gallery) {
+  function clearGallerySpanOverrides(gallery) {
     const links = Array.from(gallery.querySelectorAll(".memory-photo-link"));
-    if (links.length < 2) {
-      return;
-    }
-
-    const sortedLinks = links.slice().sort((a, b) => {
-      return Number(a.dataset.memoryIndex || 0) - Number(b.dataset.memoryIndex || 0);
+    links.forEach((link) => {
+      link.classList.remove("is-tail-fix", "is-row-fill");
+      link.style.removeProperty("--tail-span");
+      link.style.removeProperty("--tile-span");
     });
+  }
 
-    const seedSource = `${gallery.dataset.memoryType || ""}-${gallery.dataset.memoryYear || ""}-${links.length}`;
-    const random = createSeededRandom(hashString(seedSource));
-    const reordered = sortedLinks.slice();
-    shuffleInPlace(reordered, random);
-
-    // Avoid long runs of the same orientation where possible.
-    for (let i = 2; i < reordered.length; i += 1) {
-      const a = reordered[i - 2].classList.contains("is-portrait");
-      const b = reordered[i - 1].classList.contains("is-portrait");
-      const c = reordered[i].classList.contains("is-portrait");
-
-      if (a === b && b === c) {
-        for (let j = i + 1; j < reordered.length; j += 1) {
-          const candidate = reordered[j].classList.contains("is-portrait");
-          if (candidate !== c) {
-            const tmp = reordered[i];
-            reordered[i] = reordered[j];
-            reordered[j] = tmp;
-            break;
-          }
-        }
+  function pickRandomIndex(items, predicate, random) {
+    const matches = [];
+    for (let i = 0; i < items.length; i += 1) {
+      if (predicate(items[i])) {
+        matches.push(i);
       }
     }
 
-    let changed = false;
-    for (let i = 0; i < links.length; i += 1) {
-      if (links[i] !== reordered[i]) {
-        changed = true;
-        break;
-      }
+    if (matches.length === 0) {
+      return -1;
     }
 
-    if (!changed) {
-      return;
-    }
-
-    const fragment = document.createDocumentFragment();
-    reordered.forEach((link) => {
-      fragment.appendChild(link);
-    });
-    gallery.appendChild(fragment);
+    return matches[Math.floor(random() * matches.length)];
   }
 
   function updateLandscapeFillMode(gallery) {
@@ -327,52 +298,137 @@
     return link.classList.contains("is-portrait") ? 1 : 2;
   }
 
-  function alignGalleryTail(gallery) {
+  function distributeRowSpan(row, random) {
+    const spans = row.map((link) => getGalleryTileSpan(link));
+    const maxPrimary = row.map((link) => (link.classList.contains("is-portrait") ? 2 : 3));
+    const maxFallback = row.map((link) => (link.classList.contains("is-portrait") ? 3 : 6));
+    let total = spans.reduce((sum, span) => sum + span, 0);
+    let extra = 6 - total;
+
+    if (extra <= 0) {
+      return spans;
+    }
+
+    const order = row.map((_, idx) => idx);
+    shuffleInPlace(order, random);
+
+    for (let i = 0; i < order.length && extra > 0; i += 1) {
+      const idx = order[i];
+      if (spans[idx] < maxPrimary[idx]) {
+        spans[idx] += 1;
+        extra -= 1;
+      }
+    }
+
+    // Rare fallback when the row still has space to fill.
+    while (extra > 0) {
+      let changed = false;
+      for (let i = 0; i < order.length && extra > 0; i += 1) {
+        const idx = order[i];
+        if (spans[idx] < maxFallback[idx]) {
+          spans[idx] += 1;
+          extra -= 1;
+          changed = true;
+        }
+      }
+
+      if (!changed) {
+        break;
+      }
+    }
+
+    total = spans.reduce((sum, span) => sum + span, 0);
+    if (total < 6 && spans.length > 0) {
+      spans[0] += 6 - total;
+    }
+
+    return spans;
+  }
+
+  function buildGalleryRows(links, random) {
+    const queue = links.slice();
+    const rows = [];
+
+    while (queue.length > 0) {
+      const row = [];
+      let used = 0;
+
+      while (queue.length > 0 && used < 6) {
+        const remaining = 6 - used;
+        let index = pickRandomIndex(
+          queue,
+          (item) => getGalleryTileSpan(item) === remaining,
+          random
+        );
+
+        if (index === -1) {
+          index = pickRandomIndex(
+            queue,
+            (item) => getGalleryTileSpan(item) <= remaining,
+            random
+          );
+        }
+
+        if (index === -1) {
+          break;
+        }
+
+        const [item] = queue.splice(index, 1);
+        row.push(item);
+        used += getGalleryTileSpan(item);
+      }
+
+      if (row.length === 0) {
+        row.push(queue.shift());
+      }
+
+      if (row.length > 1) {
+        shuffleInPlace(row, random);
+      }
+
+      rows.push(row);
+    }
+
+    return rows;
+  }
+
+  function rebalanceGalleryPortraitFlow(gallery) {
     const links = Array.from(gallery.querySelectorAll(".memory-photo-link"));
-    links.forEach((link) => {
-      link.classList.remove("is-tail-fix");
-      link.style.removeProperty("--tail-span");
+    if (links.length < 2) {
+      return;
+    }
+
+    clearGallerySpanOverrides(gallery);
+
+    const sortedLinks = links.slice().sort((a, b) => {
+      return Number(a.dataset.memoryIndex || 0) - Number(b.dataset.memoryIndex || 0);
     });
 
-    if (links.length === 0 || window.matchMedia("(max-width: 700px)").matches) {
-      return;
-    }
+    const seedSource = `${gallery.dataset.memoryType || ""}-${gallery.dataset.memoryYear || ""}-${links.length}`;
+    const random = createSeededRandom(hashString(seedSource));
+    const shuffled = sortedLinks.slice();
+    shuffleInPlace(shuffled, random);
 
-    const columns = gallery.classList.contains("fill-landscape-gaps") ? 4 : 5;
-    const used = links.reduce((sum, link) => sum + getGalleryTileSpan(link), 0);
-    const remainder = used % columns;
-    if (remainder === 0) {
-      return;
-    }
+    const rows = buildGalleryRows(shuffled, random);
+    const fragment = document.createDocumentFragment();
 
-    let needed = columns - remainder;
-    const tail = links.slice(Math.max(0, links.length - 3));
+    rows.forEach((row) => {
+      const spanPlan = distributeRowSpan(row, random);
+      row.forEach((link, index) => {
+        const base = getGalleryTileSpan(link);
+        const target = spanPlan[index];
+        if (target !== base) {
+          link.classList.add("is-row-fill");
+          link.style.setProperty("--tile-span", String(target));
+        }
+        fragment.appendChild(link);
+      });
+    });
 
-    for (let i = tail.length - 1; i >= 0 && needed > 0; i -= 1) {
-      const link = tail[i];
-      const base = getGalleryTileSpan(link);
-      const current = Number(link.style.getPropertyValue("--tail-span")) || base;
-      const extra = Math.min(1, columns - current, needed);
-      if (extra <= 0) {
-        continue;
-      }
-
-      link.classList.add("is-tail-fix");
-      link.style.setProperty("--tail-span", String(current + extra));
-      needed -= extra;
-    }
-
-    if (needed > 0) {
-      const link = links[links.length - 1];
-      const base = getGalleryTileSpan(link);
-      const current = Number(link.style.getPropertyValue("--tail-span")) || base;
-      const extra = Math.min(columns - current, needed);
-      if (extra > 0) {
-        link.classList.add("is-tail-fix");
-        link.style.setProperty("--tail-span", String(current + extra));
-      }
-    }
+    gallery.appendChild(fragment);
   }
+
+  function alignGalleryTail() {}
 
   async function initMemoryGalleries() {
     const galleries = Array.from(

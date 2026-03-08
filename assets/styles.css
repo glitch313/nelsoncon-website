@@ -467,22 +467,22 @@ body.lightbox-open {
   cursor: not-allowed;
 }
 
-/* Final memories collage layout: each desktop row = 2 horizontal + 1 vertical */
+/* Memories collage layout: 6 desktop tracks for flexible row fills */
 .memory-item .memory-gallery {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   grid-auto-rows: 78px;
-  grid-auto-flow: dense;
+  grid-auto-flow: row;
   gap: 0.65rem;
 }
 
 .memory-item .memory-gallery.fill-landscape-gaps {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
 .memory-item .memory-photo-link {
   display: block;
-  grid-column: span 2;
+  grid-column: span var(--tile-span, 2);
   grid-row: span 3;
   border-radius: 0.7rem;
   border: 1px solid rgba(159, 116, 42, 0.24);
@@ -521,17 +521,18 @@ body.lightbox-open {
 
 .memory-item .memory-photo-link.is-landscape,
 .memory-item .memory-photo-link.is-square {
-  grid-column: span 2;
+  grid-column: span var(--tile-span, 2);
   grid-row: span 3;
 }
 
 .memory-item .memory-photo-link.is-portrait {
-  grid-column: span 1;
+  grid-column: span var(--tile-span, 1);
   grid-row: span 3;
 }
 
+.memory-item .memory-photo-link.is-row-fill,
 .memory-item .memory-photo-link.is-tail-fix {
-  grid-column: span var(--tail-span, 2);
+  grid-column: span var(--tile-span, 2);
 }
 
 .memory-item .memory-photo {
@@ -554,6 +555,7 @@ body.lightbox-open {
   .memory-item .memory-photo-link.is-landscape,
   .memory-item .memory-photo-link.is-square,
   .memory-item .memory-photo-link.is-portrait,
+  .memory-item .memory-photo-link.is-row-fill,
   .memory-item .memory-photo-link.is-tail-fix {
     grid-column: span 1;
     grid-row: span 1;
