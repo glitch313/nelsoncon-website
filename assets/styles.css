@@ -622,7 +622,6 @@ body.lightbox-open {
   border-radius: 10px;
   background: #f7f0df;
 }
-
 @media (max-width: 760px) {
   .split-panel {
     display: grid;
@@ -636,6 +635,32 @@ body.lightbox-open {
   }
 }
 
+
+.contact-card .split-panel {
+  grid-template-columns: max-content minmax(220px, 290px);
+  gap: 0.75rem;
+  width: auto;
+}
+
+.contact-card .split-panel-main {
+  max-width: 340px;
+}
+
+.contact-card .split-panel-side {
+  width: min(100%, 290px);
+}
+
+@media (max-width: 760px) {
+  .contact-card .split-panel {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .contact-card .split-panel-side {
+    width: 100%;
+    max-width: 320px;
+  }
+}
 .site-footer-row {
   display: flex;
   align-items: center;
