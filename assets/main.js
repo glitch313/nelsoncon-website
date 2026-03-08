@@ -215,14 +215,7 @@
           const playIcon = document.createElement("span");
           playIcon.className = "memory-video-play";
           playIcon.setAttribute("aria-hidden", "true");
-
-          const badge = document.createElement("span");
-          badge.className = "memory-video-badge";
-          badge.setAttribute("aria-hidden", "true");
-          badge.textContent = "VIDEO";
-
           link.appendChild(playIcon);
-          link.appendChild(badge);
         }
 
         fragment.appendChild(link);
