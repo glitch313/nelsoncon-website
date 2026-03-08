@@ -279,41 +279,66 @@
     const seedSource = `${gallery.dataset.memoryType || ""}-${gallery.dataset.memoryYear || ""}-${links.length}`;
     const random = createSeededRandom(hashString(seedSource));
     const portraitPool = portraits.slice();
+    const widePool = wides.slice();
     shuffleInPlace(portraitPool, random);
-
-    const slots = new Array(wides.length + 1).fill(0);
-    const tailSlotStart = Math.floor(wides.length * 0.65);
-    const tailPortraitCount = Math.min(
-      portraitPool.length,
-      Math.max(1, Math.min(3, Math.floor(wides.length / 5) || 1))
-    );
-
-    for (let i = 0; i < portraitPool.length; i += 1) {
-      const base = ((i + 1) * (wides.length + 1)) / (portraitPool.length + 1);
-      const jitter = Math.round((random() - 0.5) * 2);
-      let slot = Math.max(0, Math.min(wides.length, Math.round(base + jitter)));
-
-      const tailBand = i >= portraitPool.length - tailPortraitCount;
-      if (tailBand && slot < tailSlotStart) {
-        const tailWidth = Math.max(1, wides.length - tailSlotStart + 1);
-        slot = tailSlotStart + Math.floor(random() * tailWidth);
-      }
-
-      slots[slot] += 1;
-    }
+    shuffleInPlace(widePool, random);
 
     const reordered = [];
-    let portraitIndex = 0;
+    let portraitStreak = 0;
+    let wideStreak = 0;
 
-    for (let slotIndex = 0; slotIndex < slots.length; slotIndex += 1) {
-      const insertCount = slots[slotIndex];
-      for (let count = 0; count < insertCount && portraitIndex < portraitPool.length; count += 1) {
-        reordered.push(portraitPool[portraitIndex]);
-        portraitIndex += 1;
+    function pushPortrait() {
+      if (portraitPool.length === 0) {
+        return false;
       }
 
-      if (slotIndex < wides.length) {
-        reordered.push(wides[slotIndex]);
+      reordered.push(portraitPool.pop());
+      portraitStreak += 1;
+      wideStreak = 0;
+      return true;
+    }
+
+    function pushWide() {
+      if (widePool.length === 0) {
+        return false;
+      }
+
+      reordered.push(widePool.pop());
+      wideStreak += 1;
+      portraitStreak = 0;
+      return true;
+    }
+
+    while (portraitPool.length > 0 || widePool.length > 0) {
+      if (portraitPool.length === 0) {
+        pushWide();
+        continue;
+      }
+
+      if (widePool.length === 0) {
+        pushPortrait();
+        continue;
+      }
+
+      const remaining = portraitPool.length + widePool.length;
+      const portraitShare = portraitPool.length / remaining;
+      let portraitChance = portraitShare;
+
+      if (wideStreak >= 3) {
+        portraitChance = Math.max(portraitChance, 0.78);
+      }
+      if (portraitStreak >= 2) {
+        portraitChance = Math.min(portraitChance, 0.24);
+      }
+
+      if (remaining <= 6 && portraitPool.length >= 2) {
+        portraitChance = Math.max(portraitChance, 0.55);
+      }
+
+      if (random() < portraitChance) {
+        pushPortrait();
+      } else {
+        pushWide();
       }
     }
 
@@ -372,18 +397,43 @@
       return;
     }
 
-    for (let i = links.length - 1; i >= 0 && missingColumns > 0; i -= 1) {
-      const link = links[i];
+    const tailCandidates = links.slice(Math.max(0, links.length - 8)).reverse();
+    const landscapeTail = tailCandidates.filter((link) => !link.classList.contains("is-portrait"));
+    const portraitTail = tailCandidates.filter((link) => link.classList.contains("is-portrait"));
+
+    function growLink(link, maxExtra) {
+      if (missingColumns <= 0) {
+        return;
+      }
+
       const baseSpan = link.classList.contains("is-portrait") ? 1 : 2;
-      const extra = Math.min(columns - baseSpan, missingColumns);
+      const currentSpan = Number(link.style.getPropertyValue("--tail-span")) || baseSpan;
+      const availableExtra = columns - currentSpan;
+      const extra = Math.min(availableExtra, maxExtra, missingColumns);
+
       if (extra <= 0) {
-        continue;
+        return;
       }
 
       link.classList.add("is-tail-fill");
-      link.style.setProperty("--tail-span", String(baseSpan + extra));
+      link.style.setProperty("--tail-span", String(currentSpan + extra));
       missingColumns -= extra;
     }
+
+    // First pass: gently widen trailing landscapes.
+    landscapeTail.forEach((link) => {
+      growLink(link, 1);
+    });
+
+    // Second pass: use portraits near the end to close remaining 1-col gaps.
+    portraitTail.forEach((link) => {
+      growLink(link, 1);
+    });
+
+    // Final pass: if needed, fully consume leftover columns with any tail tile.
+    tailCandidates.forEach((link) => {
+      growLink(link, columns);
+    });
   }
   async function initMemoryGalleries() {
     const galleries = Array.from(
