@@ -593,10 +593,16 @@ body.lightbox-open {
 
 
 .split-panel {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(170px, 240px);
-  gap: 0.9rem;
+  display: inline-grid;
+  grid-template-columns: minmax(320px, 560px) minmax(250px, 340px);
+  gap: 1rem;
   align-items: start;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.split-panel-main {
+  min-width: 0;
 }
 
 .split-panel-main ul {
@@ -605,6 +611,7 @@ body.lightbox-open {
 
 .split-panel-side {
   margin: 0;
+  width: min(100%, 340px);
 }
 
 .split-panel-side img {
@@ -618,7 +625,14 @@ body.lightbox-open {
 
 @media (max-width: 760px) {
   .split-panel {
+    display: grid;
     grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .split-panel-side {
+    width: 100%;
+    max-width: 340px;
   }
 }
 
