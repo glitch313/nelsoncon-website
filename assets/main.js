@@ -261,7 +261,7 @@
 
   function rebalanceGalleryPortraitFlow(gallery) {
     const links = Array.from(gallery.querySelectorAll(".memory-photo-link"));
-    if (links.length < 3) {
+    if (links.length < 2) {
       return;
     }
 
@@ -269,81 +269,28 @@
       return Number(a.dataset.memoryIndex || 0) - Number(b.dataset.memoryIndex || 0);
     });
 
-    const portraits = sortedLinks.filter((link) => link.classList.contains("is-portrait"));
-    const wides = sortedLinks.filter((link) => !link.classList.contains("is-portrait"));
-
-    if (portraits.length === 0 || wides.length === 0) {
-      return;
-    }
-
     const seedSource = `${gallery.dataset.memoryType || ""}-${gallery.dataset.memoryYear || ""}-${links.length}`;
     const random = createSeededRandom(hashString(seedSource));
-    const portraitPool = portraits.slice();
-    const widePool = wides.slice();
-    shuffleInPlace(portraitPool, random);
-    shuffleInPlace(widePool, random);
+    const reordered = sortedLinks.slice();
+    shuffleInPlace(reordered, random);
 
-    const reordered = [];
-    let portraitStreak = 0;
-    let wideStreak = 0;
+    // Avoid long runs of the same orientation where possible.
+    for (let i = 2; i < reordered.length; i += 1) {
+      const a = reordered[i - 2].classList.contains("is-portrait");
+      const b = reordered[i - 1].classList.contains("is-portrait");
+      const c = reordered[i].classList.contains("is-portrait");
 
-    function pushPortrait() {
-      if (portraitPool.length === 0) {
-        return false;
+      if (a === b && b === c) {
+        for (let j = i + 1; j < reordered.length; j += 1) {
+          const candidate = reordered[j].classList.contains("is-portrait");
+          if (candidate !== c) {
+            const tmp = reordered[i];
+            reordered[i] = reordered[j];
+            reordered[j] = tmp;
+            break;
+          }
+        }
       }
-
-      reordered.push(portraitPool.pop());
-      portraitStreak += 1;
-      wideStreak = 0;
-      return true;
-    }
-
-    function pushWide() {
-      if (widePool.length === 0) {
-        return false;
-      }
-
-      reordered.push(widePool.pop());
-      wideStreak += 1;
-      portraitStreak = 0;
-      return true;
-    }
-
-    while (portraitPool.length > 0 || widePool.length > 0) {
-      if (portraitPool.length === 0) {
-        pushWide();
-        continue;
-      }
-
-      if (widePool.length === 0) {
-        pushPortrait();
-        continue;
-      }
-
-      const remaining = portraitPool.length + widePool.length;
-      const portraitShare = portraitPool.length / remaining;
-      let portraitChance = portraitShare;
-
-      if (wideStreak >= 3) {
-        portraitChance = Math.max(portraitChance, 0.78);
-      }
-      if (portraitStreak >= 2) {
-        portraitChance = Math.min(portraitChance, 0.24);
-      }
-
-      if (remaining <= 6 && portraitPool.length >= 2) {
-        portraitChance = Math.max(portraitChance, 0.55);
-      }
-
-      if (random() < portraitChance) {
-        pushPortrait();
-      } else {
-        pushWide();
-      }
-    }
-
-    if (reordered.length !== links.length) {
-      return;
     }
 
     let changed = false;
@@ -566,10 +513,7 @@
           video.setAttribute("aria-label", label);
           video.addEventListener("loadedmetadata", () => {
             applyOrientationClass(link, video.videoWidth / Math.max(1, video.videoHeight));
-            rebalanceGalleryPortraitFlow(gallery);
             updateLandscapeFillMode(gallery);
-            applyLandscapeFeatureSpans(gallery);
-            applyTailFillSpan(gallery);
           });
           mediaEl = video;
         } else {
@@ -580,10 +524,7 @@
           img.loading = "lazy";
           img.addEventListener("load", () => {
             applyOrientationClass(link, img.naturalWidth / Math.max(1, img.naturalHeight));
-            rebalanceGalleryPortraitFlow(gallery);
             updateLandscapeFillMode(gallery);
-            applyLandscapeFeatureSpans(gallery);
-            applyTailFillSpan(gallery);
           });
           mediaEl = img;
         }
@@ -605,10 +546,7 @@
       });
 
       gallery.appendChild(fragment);
-      rebalanceGalleryPortraitFlow(gallery);
       updateLandscapeFillMode(gallery);
-      applyLandscapeFeatureSpans(gallery);
-      applyTailFillSpan(gallery);
     });
   }
 
