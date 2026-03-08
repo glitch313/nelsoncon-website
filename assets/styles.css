@@ -591,3 +591,33 @@ body.lightbox-open {
 
 
 
+
+.split-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(170px, 240px);
+  gap: 0.9rem;
+  align-items: start;
+}
+
+.split-panel-main ul {
+  margin: 0;
+}
+
+.split-panel-side {
+  margin: 0;
+}
+
+.split-panel-side img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid #c8b389;
+  border-radius: 10px;
+  background: #f7f0df;
+}
+
+@media (max-width: 760px) {
+  .split-panel {
+    grid-template-columns: 1fr;
+  }
+}
