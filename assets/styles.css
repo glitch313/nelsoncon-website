@@ -636,33 +636,51 @@ body.lightbox-open {
 }
 
 
+.contact-card {
+  width: fit-content;
+  max-width: 100%;
+}
+
 .contact-card .split-panel {
-  grid-template-columns: max-content 280px;
-  gap: 0.8rem;
-  width: auto;
+  grid-template-columns: max-content clamp(220px, 28vw, 280px);
+  gap: 0.75rem;
+  width: fit-content;
   align-items: start;
 }
 
 .contact-card .split-panel-main {
   max-width: 340px;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.contact-card .split-panel-main h2,
+.contact-card .split-panel-main p {
+  margin: 0;
 }
 
 .contact-card .split-panel-side {
-  width: 280px;
-  height: 13.25rem;
+  width: clamp(220px, 28vw, 280px);
+  height: 11.5rem;
+  align-self: start;
 }
 
 .contact-card .split-panel-side img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 48%;
+  object-position: 50% 46%;
 }
 
 @media (max-width: 760px) {
+  .contact-card {
+    width: 100%;
+  }
+
   .contact-card .split-panel {
     grid-template-columns: 1fr;
     width: 100%;
+    gap: 0.7rem;
   }
 
   .contact-card .split-panel-side {
@@ -724,5 +742,6 @@ body.lightbox-open {
     row-gap: 0.4rem;
   }
 }
+
 
 
