@@ -45,9 +45,6 @@
           <label for="fullName">Full Name</label>
           <input id="fullName" name="fullName" required />
 
-          <label for="email">Email</label>
-          <input id="email" name="email" type="email" required />
-
           <label for="ticketType">Ticket Type</label>
           <select id="ticketType" name="ticketType" required>
             <option value="">Choose an option</option>
@@ -56,7 +53,7 @@
           </select>
 
           <button type="submit" class="button">Submit RSVP</button>
-          <p class="form-note">This form records intent. Payment details are listed below.</p>
+          <p class="form-note">This form records intent and submits to the RSVP database when Supabase is configured.</p>
           <p id="rsvpMessage" class="form-message" aria-live="polite"></p>
         </form>
       </section>
@@ -81,6 +78,7 @@
         </span>
       </div>
     </footer>
+    <script src="./assets/rsvp-config.js" defer></script>
     <script src="./assets/main.js" defer></script>
   </body>
 </html>

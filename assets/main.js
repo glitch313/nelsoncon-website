@@ -16,6 +16,50 @@
     });
   }
 
+  function getRsvpConfig() {
+    const config = window.NELSONCON_RSVP_CONFIG || {};
+
+    return {
+      supabaseUrl: typeof config.supabaseUrl === "string" ? config.supabaseUrl.trim() : "",
+      anonKey: typeof config.anonKey === "string" ? config.anonKey.trim() : "",
+      table:
+        typeof config.table === "string" && config.table.trim().length > 0
+          ? config.table.trim()
+          : "rsvps",
+    };
+  }
+
+  async function saveRsvpToSupabase(entry) {
+    const config = getRsvpConfig();
+    if (!config.supabaseUrl || !config.anonKey) {
+      return { ok: false, reason: "not_configured" };
+    }
+
+    const baseUrl = config.supabaseUrl.replace(/\/+$/, "");
+    const endpoint = `${baseUrl}/rest/v1/${encodeURIComponent(config.table)}`;
+
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          apikey: config.anonKey,
+          Authorization: `Bearer ${config.anonKey}`,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify([entry]),
+      });
+
+      if (!response.ok) {
+        return { ok: false, reason: "request_failed" };
+      }
+
+      return { ok: true };
+    } catch {
+      return { ok: false, reason: "network_error" };
+    }
+  }
+
   function initRsvpForm() {
     const form = document.getElementById("rsvpForm");
     const message = document.getElementById("rsvpMessage");
@@ -24,25 +68,47 @@
       return;
     }
 
-    form.addEventListener("submit", (event) => {
+    const submitButton = form.querySelector('button[type="submit"]');
+
+    form.addEventListener("submit", async (event) => {
       event.preventDefault();
 
       const fullName = form.fullName.value.trim();
-      const email = form.email.value.trim();
       const ticketType = form.ticketType.value.trim();
 
-      if (!fullName || !email || !ticketType) {
+      if (!fullName || !ticketType) {
         message.className = "form-message error";
         message.textContent = "Please complete all fields before submitting.";
         return;
       }
 
-      message.className = "form-message ok";
-      message.textContent = `Thanks, ${fullName}. Your ${ticketType} RSVP was recorded.`;
-      form.reset();
+      if (submitButton) {
+        submitButton.disabled = true;
+      }
+
+      const result = await saveRsvpToSupabase({
+        full_name: fullName,
+        ticket_type: ticketType,
+        source_page: window.location.pathname,
+      });
+
+      if (result.ok) {
+        message.className = "form-message ok";
+        message.textContent = `Thanks, ${fullName}. Your ${ticketType} RSVP was recorded.`;
+        form.reset();
+      } else if (result.reason === "not_configured") {
+        message.className = "form-message error";
+        message.textContent = "RSVP storage is not configured yet. Add Supabase URL and anon key in assets/rsvp-config.js.";
+      } else {
+        message.className = "form-message error";
+        message.textContent = "Could not submit RSVP right now. Please try again in a moment.";
+      }
+
+      if (submitButton) {
+        submitButton.disabled = false;
+      }
     });
   }
-
   function initMemoriesTabs() {
     const container = document.querySelector("[data-memories-tabs]");
     if (!container) {
