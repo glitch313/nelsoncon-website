@@ -180,6 +180,7 @@
 
         let mediaEl;
         if (mediaType === "video") {
+          link.classList.add("is-video");
           const video = document.createElement("video");
           video.className = "memory-photo memory-video";
           video.src = entry.src;
@@ -209,6 +210,21 @@
         });
 
         link.appendChild(mediaEl);
+
+        if (mediaType === "video") {
+          const playIcon = document.createElement("span");
+          playIcon.className = "memory-video-play";
+          playIcon.setAttribute("aria-hidden", "true");
+
+          const badge = document.createElement("span");
+          badge.className = "memory-video-badge";
+          badge.setAttribute("aria-hidden", "true");
+          badge.textContent = "VIDEO";
+
+          link.appendChild(playIcon);
+          link.appendChild(badge);
+        }
+
         fragment.appendChild(link);
       });
 

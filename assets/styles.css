@@ -473,8 +473,52 @@ body.lightbox-open {
   border: 1px solid rgba(159, 116, 42, 0.24);
   background: rgba(255, 255, 255, 0.62);
   overflow: hidden;
+  position: relative;
 }
 
+.memory-item .memory-video-play {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2.25rem;
+  height: 2.25rem;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: rgba(7, 14, 28, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.memory-item .memory-video-play::after {
+  content: "";
+  position: absolute;
+  left: calc(50% + 0.08rem);
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 0;
+  height: 0;
+  border-top: 0.44rem solid transparent;
+  border-bottom: 0.44rem solid transparent;
+  border-left: 0.66rem solid #fff;
+}
+
+.memory-item .memory-video-badge {
+  position: absolute;
+  top: 0.42rem;
+  left: 0.42rem;
+  padding: 0.16rem 0.4rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  background: rgba(7, 14, 28, 0.74);
+  color: #fff;
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 2;
+}
 .memory-item .memory-photo-link.is-landscape,
 .memory-item .memory-photo-link.is-square {
   grid-column: span 2;
