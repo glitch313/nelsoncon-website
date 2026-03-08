@@ -668,14 +668,14 @@ body.lightbox-open {
   height: 100%;
   object-fit: cover;
   object-position: center;
-  transform: scale(1.38);
+  transform: scale(1.30);
   transform-origin: center;
   display: block;
 }
 
 .site-footer-icon img[src*="4.png"] {
   object-position: 76% 40%;
-  transform: scale(1.28);
+  transform: scale(1.22);
 }
 
 @media (max-width: 760px) {
