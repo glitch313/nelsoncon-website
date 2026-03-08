@@ -195,6 +195,7 @@ select {
 
 .site-footer {
   flex: 0 0 auto;
+  margin-top: auto;
   border-top: 1px solid var(--line);
   background: #fff8ec;
 }
