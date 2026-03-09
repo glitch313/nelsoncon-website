@@ -792,23 +792,37 @@ body.lightbox-open {
 
 
 .brand-home {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
+  position: relative;
+  display: inline-block;
+  line-height: 1;
+  padding-right: 5.5rem;
+}
+
+.brand-home > span {
+  display: inline-block;
 }
 
 .brand-home-icon {
+  position: absolute;
+  right: 0;
+  top: calc(100% - 0.2em);
   width: 4.95rem;
   height: 4.95rem;
   object-fit: contain;
   display: block;
+  pointer-events: none;
 }
 
 @media (max-width: 760px) {
+  .brand-home {
+    padding-right: 5rem;
+  }
+
   .brand-home-icon {
     width: 4.5rem;
     height: 4.5rem;
   }
 }
+
 
 
