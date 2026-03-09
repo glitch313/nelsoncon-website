@@ -226,6 +226,26 @@ select {
   }
 }
 
+
+.memories-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.memories-heading-icon {
+  width: 2.35rem;
+  height: 2.35rem;
+  object-fit: contain;
+  display: block;
+}
+
+@media (max-width: 700px) {
+  .memories-heading-icon {
+    width: 2rem;
+    height: 2rem;
+  }
+}
 .year-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -841,4 +861,5 @@ body.lightbox-open {
     margin-bottom: -0.05em;
   }
 }
+
 
