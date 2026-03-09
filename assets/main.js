@@ -55,6 +55,19 @@
       });
 
       if (!response.ok) {
+        let errorPayload = null;
+        try {
+          errorPayload = await response.json();
+        } catch {
+          errorPayload = null;
+        }
+
+        const errorCode = typeof errorPayload?.code === "string" ? errorPayload.code : "";
+        const errorMessage = typeof errorPayload?.message === "string" ? errorPayload.message : "";
+        if (response.status === 409 || errorCode === "23505" || /duplicate/i.test(errorMessage)) {
+          return { ok: false, reason: "duplicate" };
+        }
+
         return { ok: false, reason: "request_failed" };
       }
 
@@ -128,6 +141,9 @@
       } else if (result.reason === "not_configured") {
         message.className = "form-message error";
         message.textContent = "RSVP storage is not configured yet. Add Supabase URL and anon key in assets/rsvp-config.js.";
+      } else if (result.reason === "duplicate") {
+        message.className = "form-message error";
+        message.textContent = "An RSVP already exists for this name.";
       } else {
         message.className = "form-message error";
         message.textContent = "Could not submit RSVP right now. Please try again in a moment.";

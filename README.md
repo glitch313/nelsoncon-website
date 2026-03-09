@@ -70,7 +70,9 @@ This script creates/updates:
 - stricter validation checks (`full_name` format/length and allowed `ticket_type` values)
 - `created_at` index
 - RLS enabled on the table
-- anonymous insert policy + required grants (including a simple per-minute insert throttle)
+- duplicate-name prevention (case-insensitive) plus anonymous insert policy/grants and a simple per-minute insert throttle
+
+If the script reports existing duplicate names, remove/merge those rows and run the SQL again to enable the unique-name index.
 
 ### 2) Add project config
 

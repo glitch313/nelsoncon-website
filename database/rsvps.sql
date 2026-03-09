@@ -1,5 +1,5 @@
 -- Nelsoncon RSVP database bootstrap for Supabase/Postgres.
--- Safe to re-run: table, index, constraints, and policy are idempotent.
+-- Safe to re-run: table, index, constraints, trigger, and policy are idempotent.
 
 begin;
 
@@ -89,6 +89,45 @@ begin
 end
 $$;
 
+-- Enforce one RSVP per normalized full name (case/space-insensitive).
+do $$
+begin
+  if to_regclass('public.rsvps_full_name_unique_norm_idx') is null then
+    begin
+      execute 'create unique index rsvps_full_name_unique_norm_idx on public.rsvps ((lower(trim(full_name))))';
+    exception
+      when unique_violation then
+        raise notice 'Could not create unique index rsvps_full_name_unique_norm_idx because duplicates already exist. Clean duplicate names and re-run this script.';
+    end;
+  end if;
+end
+$$;
+
+create or replace function public.prevent_duplicate_rsvp_name()
+returns trigger
+language plpgsql
+as $$
+begin
+  if exists (
+    select 1
+    from public.rsvps existing
+    where lower(trim(existing.full_name)) = lower(trim(new.full_name))
+  ) then
+    raise exception using
+      errcode = '23505',
+      message = 'duplicate RSVP for full_name';
+  end if;
+
+  return new;
+end
+$$;
+
+drop trigger if exists rsvps_prevent_duplicate_name on public.rsvps;
+create trigger rsvps_prevent_duplicate_name
+before insert on public.rsvps
+for each row
+execute function public.prevent_duplicate_rsvp_name();
+
 create index if not exists rsvps_created_at_idx on public.rsvps (created_at desc);
 
 alter table public.rsvps enable row level security;
@@ -118,4 +157,3 @@ grant insert on table public.rsvps to anon;
 grant usage, select on sequence public.rsvps_id_seq to anon;
 
 commit;
-
