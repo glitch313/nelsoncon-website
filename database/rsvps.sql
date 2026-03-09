@@ -1,5 +1,5 @@
 -- Nelsoncon RSVP database bootstrap for Supabase/Postgres.
--- Safe to re-run: table, index, and policy creation are idempotent.
+-- Safe to re-run: table, index, constraints, and policy are idempotent.
 
 begin;
 
@@ -31,12 +31,60 @@ begin
   if not exists (
     select 1
     from pg_constraint
+    where conname = 'rsvps_full_name_format'
+      and conrelid = 'public.rsvps'::regclass
+  ) then
+    alter table public.rsvps
+      add constraint rsvps_full_name_format
+      check (full_name ~ '^[A-Za-z0-9 .,''-]{2,80}$');
+  end if;
+end
+$$;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
     where conname = 'rsvps_ticket_type_not_blank'
       and conrelid = 'public.rsvps'::regclass
   ) then
     alter table public.rsvps
       add constraint rsvps_ticket_type_not_blank
       check (char_length(trim(ticket_type)) > 0);
+  end if;
+end
+$$;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'rsvps_ticket_type_allowed'
+      and conrelid = 'public.rsvps'::regclass
+  ) then
+    alter table public.rsvps
+      add constraint rsvps_ticket_type_allowed
+      check (ticket_type in ('Normal Ticket', 'Private Room'));
+  end if;
+end
+$$;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'rsvps_source_page_allowed'
+      and conrelid = 'public.rsvps'::regclass
+  ) then
+    alter table public.rsvps
+      add constraint rsvps_source_page_allowed
+      check (
+        source_page is null
+        or source_page in ('/rsvp-payment.html', '/nelsoncon-website/rsvp-payment.html')
+      );
   end if;
 end
 $$;
@@ -50,10 +98,24 @@ create policy "Allow anonymous RSVP insert"
 on public.rsvps
 for insert
 to anon
-with check (true);
+with check (
+  char_length(trim(full_name)) between 2 and 80
+  and full_name ~ '^[A-Za-z0-9 .,''-]{2,80}$'
+  and ticket_type in ('Normal Ticket', 'Private Room')
+  and (
+    source_page is null
+    or source_page in ('/rsvp-payment.html', '/nelsoncon-website/rsvp-payment.html')
+  )
+  and (
+    select count(*)
+    from public.rsvps recent
+    where recent.created_at > now() - interval '1 minute'
+  ) < 30
+);
 
 grant usage on schema public to anon;
 grant insert on table public.rsvps to anon;
 grant usage, select on sequence public.rsvps_id_seq to anon;
 
 commit;
+

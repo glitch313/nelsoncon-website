@@ -47,7 +47,7 @@
         <h2>RSVP Form</h2>
         <form id="rsvpForm" class="stack" novalidate>
           <label for="fullName">Full Name</label>
-          <input id="fullName" name="fullName" required />
+          <input id="fullName" name="fullName" maxlength="80" autocomplete="name" required />
 
           <label for="ticketType">Ticket Type</label>
           <select id="ticketType" name="ticketType" required>
@@ -55,6 +55,11 @@
             <option>Normal Ticket</option>
             <option>Private Room</option>
           </select>
+
+          <div class="rsvp-trap" aria-hidden="true">
+            <label for="website">Leave this field empty</label>
+            <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+          </div>
 
           <button type="submit" class="button">Submit RSVP</button>
           <p class="form-note">This form records intent and submits to the RSVP database when Supabase is configured.</p>
@@ -89,10 +94,4 @@
     <script src="./assets/main.js?v=20260309-1" defer></script>
   </body>
 </html>
-
-
-
-
-
-
 

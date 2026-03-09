@@ -1,6 +1,10 @@
 (function () {
   const IMAGE_EXT_RE = /\.(avif|bmp|gif|jpe?g|png|svg|webp)(\?.*)?$/i;
   const VIDEO_EXT_RE = /\.(mp4|webm)(\?.*)?$/i;
+  const RSVP_ALLOWED_TICKETS = new Set(["Normal Ticket", "Private Room"]);
+  const RSVP_NAME_MAX_LENGTH = 80;
+  const RSVP_NAME_RE = /^[A-Za-z0-9 .,'-]{2,80}$/;
+  const RSVP_MIN_FILL_MS = 1200;
 
   setFooterYear();
   initRsvpForm();
@@ -60,6 +64,10 @@
     }
   }
 
+  function normalizeRsvpName(value) {
+    return String(value || "").replace(/\s+/g, " ").trim();
+  }
+
   function initRsvpForm() {
     const form = document.getElementById("rsvpForm");
     const message = document.getElementById("rsvpMessage");
@@ -69,16 +77,37 @@
     }
 
     const submitButton = form.querySelector('button[type="submit"]');
+    const honeypotField = form.querySelector('input[name="website"]');
+    const formLoadedAt = Date.now();
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      const fullName = form.fullName.value.trim();
-      const ticketType = form.ticketType.value.trim();
+      const fullName = normalizeRsvpName(form.fullName.value);
+      const ticketType = String(form.ticketType.value || "").trim();
 
       if (!fullName || !ticketType) {
         message.className = "form-message error";
         message.textContent = "Please complete all fields before submitting.";
+        return;
+      }
+
+      if (fullName.length > RSVP_NAME_MAX_LENGTH || !RSVP_NAME_RE.test(fullName)) {
+        message.className = "form-message error";
+        message.textContent = "Please enter a valid full name.";
+        return;
+      }
+
+      if (!RSVP_ALLOWED_TICKETS.has(ticketType)) {
+        message.className = "form-message error";
+        message.textContent = "Please choose a valid ticket type.";
+        return;
+      }
+
+      if ((honeypotField && honeypotField.value.trim()) || Date.now() - formLoadedAt < RSVP_MIN_FILL_MS) {
+        message.className = "form-message ok";
+        message.textContent = "Thanks. Your RSVP was recorded.";
+        form.reset();
         return;
       }
 
@@ -89,7 +118,7 @@
       const result = await saveRsvpToSupabase({
         full_name: fullName,
         ticket_type: ticketType,
-        source_page: window.location.pathname,
+        source_page: "/rsvp-payment.html",
       });
 
       if (result.ok) {

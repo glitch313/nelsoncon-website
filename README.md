@@ -62,15 +62,15 @@ The RSVP form posts to Supabase REST using config in `assets/rsvp-config.js`.
 
 ### 1) Create/update the RSVP database objects
 
-Run the SQL from [`database/rsvps.sql`](./database/rsvps.sql) in Supabase SQL Editor.
+Run the SQL from [`database/rsvps.sql`](./database/rsvps.sql) in Supabase SQL Editor. Re-run it when this file changes to apply new constraints/policies.
 
 This script creates/updates:
 
 - `public.rsvps` table
-- non-empty checks for `full_name` and `ticket_type`
+- stricter validation checks (`full_name` format/length and allowed `ticket_type` values)
 - `created_at` index
 - RLS enabled on the table
-- anonymous insert policy + required grants
+- anonymous insert policy + required grants (including a simple per-minute insert throttle)
 
 ### 2) Add project config
 
@@ -83,3 +83,4 @@ Edit `assets/rsvp-config.js` and fill:
 ### 3) View entries
 
 Use Supabase Dashboard -> Table Editor -> `rsvps`.
+
