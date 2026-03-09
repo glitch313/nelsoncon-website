@@ -1,5 +1,5 @@
 ﻿{
-    "generatedAt":  "2026-03-08T03:15:50.4447248-04:00",
+    "generatedAt":  "2026-03-08T22:44:17.2799500-04:00",
     "regular":  {
                     "2018":  [
                                  "./assets/memories/2018/Snapchat-1568672508.mp4",
@@ -22,6 +22,9 @@
                                  "./assets/memories/2019/ash.mp4"
                              ],
                     "2020":  [
+                                 "./assets/memories/2020/20200803_180315.webp",
+                                 "./assets/memories/2020/20200803_155455.webp",
+                                 "./assets/memories/2020/20200807_104352.webp",
                                  "./assets/memories/2020/image.webp",
                                  "./assets/memories/2020/116426811_586641208890028_7089346013035602956_n.jpg",
                                  "./assets/memories/2020/117009263_588010615196797_3287326847404412714_n.jpg",
@@ -481,7 +484,11 @@
                 },
     "winter":  {
                    "2023":  [
-
+                                "./assets/memories/winter/2023/3321.jpg",
+                                "./assets/memories/winter/2023/dd.jpg",
+                                "./assets/memories/winter/2023/33.jpg",
+                                "./assets/memories/winter/2023/12.jpg",
+                                "./assets/memories/winter/2023/image.webp"
                             ],
                    "2024":  [
                                 "./assets/memories/winter/2024/RPReplay_Final1706063179.mp4",
