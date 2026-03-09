@@ -790,3 +790,23 @@ body.lightbox-open {
 
 
 
+
+.brand-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.brand-home-icon {
+  width: 2.2rem;
+  height: 2.2rem;
+  object-fit: contain;
+  display: block;
+}
+
+@media (max-width: 760px) {
+  .brand-home-icon {
+    width: 2rem;
+    height: 2rem;
+  }
+}
