@@ -254,14 +254,6 @@
     };
   }
 
-  function shuffleInPlace(items, random) {
-    for (let i = items.length - 1; i > 0; i -= 1) {
-      const j = Math.floor(random() * (i + 1));
-      const temp = items[i];
-      items[i] = items[j];
-      items[j] = temp;
-    }
-  }
 
   const galleryLayoutFrames = new WeakMap();
 
@@ -285,25 +277,11 @@
     });
   }
 
-  function pickRandomIndex(items, predicate, random) {
-    const matches = [];
-    for (let i = 0; i < items.length; i += 1) {
-      if (predicate(items[i])) {
-        matches.push(i);
-      }
-    }
-
-    if (matches.length === 0) {
-      return -1;
-    }
-
-    return matches[Math.floor(random() * matches.length)];
-  }
   function getGalleryTileSpan(link) {
     return link.classList.contains("is-portrait") ? 1 : 2;
   }
 
-  function distributeRowSpan(row, random) {
+  function distributeRowSpan(row) {
     const spans = row.map((link) => getGalleryTileSpan(link));
     const maxPrimary = row.map((link) => (link.classList.contains("is-portrait") ? 2 : 3));
     const maxFallback = row.map((link) => (link.classList.contains("is-portrait") ? 3 : 6));
@@ -314,13 +292,9 @@
       return spans;
     }
 
-    const order = row.map((_, idx) => idx);
-    shuffleInPlace(order, random);
-
-    for (let i = 0; i < order.length && extra > 0; i += 1) {
-      const idx = order[i];
-      if (spans[idx] < maxPrimary[idx]) {
-        spans[idx] += 1;
+    for (let i = 0; i < spans.length && extra > 0; i += 1) {
+      if (spans[i] < maxPrimary[i]) {
+        spans[i] += 1;
         extra -= 1;
       }
     }
@@ -328,10 +302,9 @@
     // Rare fallback when the row still has space to fill.
     while (extra > 0) {
       let changed = false;
-      for (let i = 0; i < order.length && extra > 0; i += 1) {
-        const idx = order[i];
-        if (spans[idx] < maxFallback[idx]) {
-          spans[idx] += 1;
+      for (let i = 0; i < spans.length && extra > 0; i += 1) {
+        if (spans[i] < maxFallback[i]) {
+          spans[i] += 1;
           extra -= 1;
           changed = true;
         }
@@ -350,47 +323,31 @@
     return spans;
   }
 
-  function buildGalleryRows(links, random) {
-    const queue = links.slice();
+  function buildGalleryRows(links) {
     const rows = [];
+    let row = [];
+    let used = 0;
 
-    while (queue.length > 0) {
-      const row = [];
-      let used = 0;
+    links.forEach((item) => {
+      const span = getGalleryTileSpan(item);
 
-      while (queue.length > 0 && used < 6) {
-        const remaining = 6 - used;
-        let index = pickRandomIndex(
-          queue,
-          (item) => getGalleryTileSpan(item) === remaining,
-          random
-        );
-
-        if (index === -1) {
-          index = pickRandomIndex(
-            queue,
-            (item) => getGalleryTileSpan(item) <= remaining,
-            random
-          );
-        }
-
-        if (index === -1) {
-          break;
-        }
-
-        const [item] = queue.splice(index, 1);
-        row.push(item);
-        used += getGalleryTileSpan(item);
+      if (row.length > 0 && used + span > 6) {
+        rows.push(row);
+        row = [];
+        used = 0;
       }
 
-      if (row.length === 0) {
-        row.push(queue.shift());
-      }
+      row.push(item);
+      used += span;
 
-      if (row.length > 1) {
-        shuffleInPlace(row, random);
+      if (used === 6) {
+        rows.push(row);
+        row = [];
+        used = 0;
       }
+    });
 
+    if (row.length > 0) {
       rows.push(row);
     }
 
@@ -409,16 +366,11 @@
       return Number(a.dataset.memoryIndex || 0) - Number(b.dataset.memoryIndex || 0);
     });
 
-    const seedSource = `${gallery.dataset.memoryType || ""}-${gallery.dataset.memoryYear || ""}-${links.length}`;
-    const random = createSeededRandom(hashString(seedSource));
-    const shuffled = sortedLinks.slice();
-    shuffleInPlace(shuffled, random);
-
-    const rows = buildGalleryRows(shuffled, random);
+    const rows = buildGalleryRows(sortedLinks);
     const fragment = document.createDocumentFragment();
 
     rows.forEach((row) => {
-      const spanPlan = distributeRowSpan(row, random);
+      const spanPlan = distributeRowSpan(row);
       row.forEach((link, index) => {
         const base = getGalleryTileSpan(link);
         const target = spanPlan[index];
@@ -468,10 +420,6 @@
       let entries = normalizeMediaEntries(
         (((manifest || {})[type] || {})[year] || []).filter(Boolean)
       );
-
-      const orderRandom = createSeededRandom(hashString(`${type}-${year}-${entries.length}-order`));
-      entries = entries.slice();
-      shuffleInPlace(entries, orderRandom);
 
       gallery.innerHTML = "";
 
