@@ -795,17 +795,20 @@ body.lightbox-open {
   position: relative;
   display: inline-block;
   line-height: 1;
+  height: 1em;
   padding-right: 5.5rem;
+  vertical-align: middle;
 }
 
 .brand-home > span {
   display: inline-block;
+  line-height: 1;
 }
 
 .brand-home-icon {
   position: absolute;
   right: 0;
-  top: calc(100% - 0.2em);
+  bottom: 0;
   width: 4.95rem;
   height: 4.95rem;
   object-fit: contain;
@@ -823,6 +826,7 @@ body.lightbox-open {
     height: 4.5rem;
   }
 }
+
 
 
 
