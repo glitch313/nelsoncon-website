@@ -808,7 +808,7 @@ body.lightbox-open {
 .brand-home-icon {
   position: absolute;
   right: 0;
-  bottom: -0.22em;
+  top: calc(100% - 0.05em);
   width: 4.95rem;
   height: 4.95rem;
   object-fit: contain;
