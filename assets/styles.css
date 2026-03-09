@@ -818,13 +818,20 @@ body.lightbox-open {
 
 @media (max-width: 760px) {
   .brand-home {
-    padding-right: 5rem;
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 0.35rem;
+    height: auto;
+    padding-right: 0;
   }
 
   .brand-home-icon {
-    bottom: -2rem;
-    width: 4.5rem;
-    height: 4.5rem;
+    position: static;
+    right: auto;
+    bottom: auto;
+    width: 2.6rem;
+    height: 2.6rem;
+    margin-bottom: -0.05em;
   }
 }
 
