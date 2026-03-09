@@ -5,12 +5,14 @@
   const RSVP_NAME_MAX_LENGTH = 80;
   const RSVP_NAME_RE = /^[A-Za-z0-9 .,'-]{2,80}$/;
   const RSVP_MIN_FILL_MS = 1200;
+  const RSVP_REQUEST_TIMEOUT_MS = 10000;
 
   setFooterYear();
   initRsvpForm();
   initMemoriesTabs();
   initMemoryGalleries();
   initVenuePhotoGallery();
+  initHideOnErrorMedia();
 
   function setFooterYear() {
     const yearNodes = document.querySelectorAll("[data-year]");
@@ -41,10 +43,15 @@
 
     const baseUrl = config.supabaseUrl.replace(/\/+$/, "");
     const endpoint = `${baseUrl}/rest/v1/${encodeURIComponent(config.table)}`;
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => {
+      controller.abort();
+    }, RSVP_REQUEST_TIMEOUT_MS);
 
     try {
       const response = await fetch(endpoint, {
         method: "POST",
+        signal: controller.signal,
         headers: {
           apikey: config.anonKey,
           Authorization: `Bearer ${config.anonKey}`,
@@ -74,6 +81,8 @@
       return { ok: true };
     } catch {
       return { ok: false, reason: "network_error" };
+    } finally {
+      window.clearTimeout(timeoutId);
     }
   }
 
@@ -210,7 +219,22 @@
       });
     }
 
+    let activeYear = "";
+
     function setActiveYear(year, { focusTab = false } = {}) {
+      if (!year) {
+        return;
+      }
+
+      if (year === activeYear) {
+        const activeTabOnly = tabs.find((tab) => tab.dataset.tabYear === year);
+        if (activeTabOnly && focusTab) {
+          activeTabOnly.focus();
+        }
+        return;
+      }
+
+      activeYear = year;
       tabs.forEach((tab) => {
         const active = tab.dataset.tabYear === year;
         tab.classList.toggle("is-active", active);
@@ -279,6 +303,13 @@
     note.className = "memory-gallery-empty";
     note.textContent = message;
     gallery.appendChild(note);
+  }
+
+
+  function renderGalleryMessageForAll(galleries, message) {
+    galleries.forEach((gallery) => {
+      renderGalleryMessage(gallery, message);
+    });
   }
 
   function hashString(value) {
@@ -444,16 +475,12 @@
         cache: "no-cache",
       });
       if (!response.ok) {
-        galleries.forEach((gallery) => {
-          renderGalleryMessage(gallery, "Could not load media right now.");
-        });
+        renderGalleryMessageForAll(galleries, "Could not load media right now.");
         return;
       }
       manifest = await response.json();
     } catch {
-      galleries.forEach((gallery) => {
-        renderGalleryMessage(gallery, "Could not load media right now.");
-      });
+      renderGalleryMessageForAll(galleries, "Could not load media right now.");
       return;
     }
 
@@ -513,6 +540,7 @@
           img.src = entry.src;
           img.alt = label;
           img.loading = "lazy";
+          img.decoding = "async";
           img.addEventListener("load", () => {
             const ratio = img.naturalWidth / Math.max(1, img.naturalHeight);
             applyOrientationClass(link, ratio);
@@ -568,6 +596,32 @@
       button.addEventListener("click", () => {
         lightbox.open(entries, index, "Host Venue");
       });
+    });
+  }
+  function initHideOnErrorMedia() {
+    const errorImages = Array.from(document.querySelectorAll("img[data-hide-on-error]"));
+    if (errorImages.length === 0) {
+      return;
+    }
+
+    const hideImageContainer = (img) => {
+      const figure = img.closest("figure");
+      if (figure) {
+        figure.hidden = true;
+        return;
+      }
+
+      img.hidden = true;
+    };
+
+    errorImages.forEach((img) => {
+      img.addEventListener("error", () => {
+        hideImageContainer(img);
+      });
+
+      if (img.complete && img.naturalWidth === 0) {
+        hideImageContainer(img);
+      }
     });
   }
   function applyOrientationClass(link, ratio) {
