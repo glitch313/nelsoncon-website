@@ -130,6 +130,26 @@ h3 {
   font-weight: 700;
 }
 
+.card-grid .card {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-grid .card h2 {
+  min-height: 2.4em;
+  margin-bottom: 0.75rem;
+  line-height: 1.2;
+}
+
+.card-grid .card p {
+  margin: 0 0 0.85rem;
+}
+
+.card-grid .card a {
+  margin-top: auto;
+  display: inline-block;
+}
+
 .page {
   flex: 1;
   padding: 2rem 0;
